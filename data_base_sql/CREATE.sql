@@ -19,7 +19,7 @@ CREATE TABLE Projects (
     public BOOLEAN NOT NULL DEFAULT (false),
     publish_date TIMESTAMP,
     description VARCHAR(255),
-	deleted BOOLEAN NOT NULL DEFAULT (false)
+    deleted BOOLEAN NOT NULL DEFAULT (false)
 );
 
 CREATE TABLE Likes(
@@ -34,6 +34,6 @@ CREATE TABLE Params (
     id_project INT NOT NULL UNIQUE,
     FOREIGN KEY (id_project) REFERENCES Projects (id_project),
     param1 INT NOT NULL,
-	param2 INT NOT NULL,
-	grid INT[]
+    param2 INT NOT NULL,
+    grid INT[]
 );

@@ -105,3 +105,68 @@ BEGIN
     END IF;
 END;
 $$;
+
+
+
+CREATE OR REPLACE PROCEDURE delete_project(
+    input_username VARCHAR(31),
+    input_projectname VARCHAR(31)
+)
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    id_user_proc INT;
+    id_project_proc INT;
+BEGIN
+    SELECT id_user INTO id_user_proc
+    FROM Users
+    WHERE username = input_username;
+    
+    IF NOT FOUND THEN
+        RAISE EXCEPTION 'User % not found.', input_username;
+    END IF;
+
+    SELECT id_project INTO id_project_proc
+    FROM Projects
+    WHERE projectname = input_projectname AND id_user = id_user_proc;
+
+    IF NOT FOUND THEN
+        RAISE EXCEPTION 'Project % not found or does not belongs to user %.', input_projectname, input_username;
+    END IF;
+
+    UPDATE Projects
+    SET deleted = true
+    WHERE id_project = id_project_proc;
+END;
+$$;
+
+
+
+
+
+CREATE OR REPLACE PROCEDURE clean_deleted_projects()
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    project_id INT;
+    deleted_projects CURSOR FOR
+        SELECT id_project FROM Projects WHERE deleted = TRUE;
+BEGIN
+    OPEN deleted_projects;
+
+    LOOP
+        FETCH deleted_projects INTO project_id;
+        EXIT WHEN NOT FOUND;
+
+        DELETE FROM Likes WHERE id_project = project_id;
+
+        DELETE FROM Params WHERE id_project = project_id;
+
+        DELETE FROM Projects WHERE id_project = project_id;
+        
+        RAISE NOTICE 'Project with id % completele deleted.', project_id;
+    END LOOP;
+
+    CLOSE deleted_projects;
+END;
+$$;

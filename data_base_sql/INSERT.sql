@@ -53,9 +53,9 @@ SET
 WHERE id_project = 2;
 
 
-CALL do_like_by_id(1, 5); --ok
+CALL do_like_by_id(1, 5); -- ok
 
-CALL do_like_by_id(1, 4);--not ok
+CALL do_like_by_id(1, 4); -- not ok
 
 CALL do_like('user1', 'Project 5'); -- already exists
 
@@ -63,6 +63,16 @@ CALL do_like('user1', 'Project 3'); -- ok
 
 CALL do_like_unlike('user1', 'Project 3');
 
-CALL do_like_unlike('user1', 'Project 4');
+CALL do_like_unlike('user3', 'Project 5');
 
-CALL do_like_unlike('user2', 'Project 1');
+CALL do_like_unlike('user1', 'Project 4'); -- private
+
+CALL do_like_unlike('user2', 'Project 1'); -- deleted
+
+CALL delete_project('user1', 'Project 1');
+
+CALL delete_project('user2', 'Project 4');
+
+CALL delete_project('user1', 'Project 5');
+
+CALL clean_deleted_projects();
