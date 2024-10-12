@@ -1,0 +1,31 @@
+DROP TABLE IF EXISTS Users CASCADE;
+DROP TABLE IF EXISTS Projects CASCADE;
+DROP TABLE IF EXISTS Likes CASCADE;
+
+CREATE TABLE Users (
+    id_user SERIAL PRIMARY KEY,
+    username VARCHAR(31) NOT NULL UNIQUE,
+    password_hash BIGINT NOT NULL,
+    about_me VARCHAR(255)
+);
+
+CREATE TABLE Projects (
+    id_project SERIAL PRIMARY KEY,
+    id_user INT NOT NULL,
+    FOREIGN KEY (id_user) REFERENCES Users (id_user),
+    projectname VARCHAR(31) NOT NULL UNIQUE,
+    params TEXT NOT NULL,
+    grid TEXT NOT NULL,
+    create_date TIMESTAMP NOT NULL DEFAULT (CURRENT_TIMESTAMP),
+    public BOOLEAN NOT NULL DEFAULT (false),
+    publish_date TIMESTAMP,
+    description VARCHAR(255),
+    likes_count INT
+);
+
+CREATE TABLE Likes(
+    id_project INT NOT NULL,
+    id_user INT NOT NULL,
+    FOREIGN KEY (id_user) REFERENCES Users (id_user),
+    FOREIGN KEY (id_project) REFERENCES Projects (id_project)
+);
