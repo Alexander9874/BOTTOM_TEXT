@@ -6,18 +6,14 @@ LANGUAGE plpgsql
 AS $$
 BEGIN
     IF NOT EXISTS (
-        SELECT 1 FROM Projects WHERE id_project = input_id_project AND public = true
+        SELECT 1 FROM Projects WHERE id_project = input_id_project AND public = true AND deleted = false
     ) THEN
-        RAISE EXCEPTION 'Project is not public.';
+        RAISE EXCEPTION 'Project is not public or deleted.';
     END IF;
 
     INSERT INTO Likes (id_user, id_project)
     VALUES (input_id_user, input_id_project)
     ON CONFLICT DO NOTHING;
-
-    UPDATE Projects
-    SET likes_count = COALESCE(likes_count, 0) + 1
-    WHERE id_project = input_id_project;
 END;
 $$;
 
@@ -49,9 +45,9 @@ BEGIN
     END IF;
 
     IF NOT EXISTS (
-        SELECT 1 FROM Projects WHERE id_project = id_project_proc AND public = true
+        SELECT 1 FROM Projects WHERE id_project = id_project_proc AND public = true AND deleted = false
     ) THEN
-        RAISE EXCEPTION 'Project % is not public.', input_projectname;
+        RAISE EXCEPTION 'Project % is not public or deleted.', input_projectname;
     END IF;
 
     IF EXISTS (
@@ -62,11 +58,6 @@ BEGIN
 
     INSERT INTO Likes (id_user, id_project)
     VALUES (id_user_proc, id_project_proc);
-
-    UPDATE Projects
-    SET likes_count = COALESCE(likes_count, 0) + 1
-    WHERE id_project = id_project_proc;
-
 END;
 $$;
 
@@ -98,9 +89,9 @@ BEGIN
     END IF;
 
     IF NOT EXISTS (
-        SELECT 1 FROM Projects WHERE id_project = id_project_proc AND public = true
+        SELECT 1 FROM Projects WHERE id_project = id_project_proc AND public = true AND deleted = false
     ) THEN
-        RAISE EXCEPTION 'Project % is not public.', input_projectname;
+        RAISE EXCEPTION 'Project % is not public or deleted.', input_projectname;
     END IF;
 
     IF EXISTS (
@@ -108,17 +99,9 @@ BEGIN
     ) THEN
         DELETE FROM Likes
 		WHERE id_user = id_user_proc AND id_project = id_project_proc;
-
-		UPDATE Projects
-	    SET likes_count = COALESCE(likes_count, 0) - 1
-	    WHERE id_project = id_project_proc;
 	ELSE
     	INSERT INTO Likes (id_user, id_project)
     	VALUES (id_user_proc, id_project_proc);
-
-   		UPDATE Projects
-	    SET likes_count = COALESCE(likes_count, 0) + 1
-	    WHERE id_project = id_project_proc;
     END IF;
 END;
 $$;
