@@ -107,7 +107,6 @@ END;
 $$;
 
 
-
 CREATE OR REPLACE PROCEDURE delete_project(
     input_username VARCHAR(31),
     input_projectname VARCHAR(31)
@@ -141,9 +140,6 @@ END;
 $$;
 
 
-
-
-
 CREATE OR REPLACE PROCEDURE clean_deleted_projects()
 LANGUAGE plpgsql
 AS $$
@@ -170,3 +166,50 @@ BEGIN
     CLOSE deleted_projects;
 END;
 $$;
+
+
+CREATE OR REPLACE FUNCTION create_user(username_input VARCHAR, password_input VARCHAR)
+RETURNS INT AS $$
+DECLARE
+    user_exists BOOLEAN;
+    password_hashed BIGINT;
+BEGIN
+    SELECT EXISTS(SELECT 1 FROM Users WHERE username = username_input) INTO user_exists;
+
+    IF user_exists THEN
+        RETURN 1;
+    ELSE
+        SELECT hashtext(password_input || username_input)::BIGINT INTO password_hashed;
+
+        INSERT INTO Users (username, password_hash)
+        VALUES (username_input, password_hashed);
+
+        RETURN 0;
+    END IF;
+END;
+$$ LANGUAGE plpgsql;
+
+
+CREATE OR REPLACE FUNCTION check_user_password(username_input VARCHAR, password_input VARCHAR)
+RETURNS INT AS $$
+DECLARE
+    stored_password_hash BIGINT;
+    input_password_hash BIGINT;
+BEGIN
+    SELECT password_hash INTO stored_password_hash
+    FROM Users
+    WHERE username = username_input;
+
+    IF NOT FOUND THEN
+        RETURN 1;
+    END IF;
+
+    SELECT hashtext(password_input || username_input)::BIGINT INTO input_password_hash;
+
+    IF stored_password_hash = input_password_hash THEN
+        RETURN 0;
+    ELSE
+        RETURN 1;
+    END IF;
+END;
+$$ LANGUAGE plpgsql;
