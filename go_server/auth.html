@@ -59,28 +59,44 @@
         const usernameInput = document.getElementById('username');
         const passwordInput = document.getElementById('password');
         const output = document.getElementById('output');
-
+    
+        // Функция для отправки данных на сервер
+        function sendData(url, username, password) {
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`
+            })
+            .then(response => response.text())
+            .then(data => {
+                output.textContent = data;
+            })
+            .catch(error => {
+                output.textContent = 'Error: ' + error.message;
+            });
+        }
+    
         // Обработка нажатия кнопки "Log In"
         document.getElementById('loginBtn').addEventListener('click', () => {
             const username = usernameInput.value;
             const password = passwordInput.value;
-
+    
             if (username && password) {
-                // В реальном приложении здесь был бы запрос к серверу для проверки данных
-                output.textContent = `Logging in with username: ${username}`;
+                sendData('/login', username, password);
             } else {
                 output.textContent = "Please fill in both fields.";
             }
         });
-
+    
         // Обработка нажатия кнопки "Sign Up"
         document.getElementById('signupBtn').addEventListener('click', () => {
             const username = usernameInput.value;
             const password = passwordInput.value;
-
+    
             if (username && password) {
-                // В реальном приложении здесь был бы запрос на создание нового аккаунта
-                output.textContent = `Signing up with username: ${username}`;
+                sendData('/signup', username, password);
             } else {
                 output.textContent = "Please fill in both fields.";
             }
