@@ -213,3 +213,19 @@ BEGIN
     END IF;
 END;
 $$ LANGUAGE plpgsql;
+
+
+CREATE OR REPLACE FUNCTION get_user_data(username_input VARCHAR)
+RETURNS TABLE (id_user INT, username VARCHAR, about_me VARCHAR) AS $$
+BEGIN
+    RETURN QUERY
+    SELECT u.id_user, u.username, 
+           COALESCE(u.about_me, 'empty')
+    FROM Users u
+    WHERE u.username = username_input;
+
+    IF NOT FOUND THEN
+        RAISE EXCEPTION 'User % not found.', username_input;
+    END IF;
+END;
+$$ LANGUAGE plpgsql;

@@ -2,7 +2,8 @@ INSERT INTO Users (username, password_hash, about_me)
 VALUES
     ('user1', 123456789, 'I love coding.'),
     ('user2', 987654321, 'Data scientist and engineer.'),
-    ('user3', 112233445, 'Backend developer.');
+    ('user3', 112233445, 'Backend developer.'),
+	('user4', 0, NULL);
 
 
 INSERT INTO Projects (id_user, projectname)
@@ -88,3 +89,8 @@ SELECT check_user_password('existing_user', 'password_to_check');
 SELECT create_user('existing_user', 'password_to_check');
 
 SELECT check_user_password('existing_user', 'password_to_check');
+
+
+SELECT * FROM get_user_data('user1');
+
+SELECT * FROM get_user_data('user4');

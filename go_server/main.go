@@ -20,8 +20,25 @@ func authHandler(w http.ResponseWriter, r *http.Request) {
 	loadHTML(w, r, "auth.html")
 }
 
+//func homeHandler(w http.ResponseWriter, r *http.Request) {
+//	loadHTML(w, r, "home.html")
+//}
+
+// Хендлер для получения информации о пользователе и отображения на /home
 func homeHandler(w http.ResponseWriter, r *http.Request) {
-	loadHTML(w, r, "home.html")
+	username := r.Context().Value("username").(string)
+
+	// Обновленный запрос с корректными именами столбцов
+	var id int
+	var aboutMe string
+	err := db.QueryRow(context.Background(), "SELECT id_user, about_me FROM get_user_data($1)", username).Scan(&id, &aboutMe)
+	if err != nil {
+		http.Error(w, "Failed to get user data", http.StatusInternalServerError)
+		return
+	}
+
+	// Выводим информацию о пользователе
+	fmt.Fprintf(w, "Welcome, %s!\nYour ID: %d\nAbout me: %s\n", username, id, aboutMe)
 }
 
 var db *pgx.Conn
@@ -122,8 +139,11 @@ func authMiddleware(next http.Handler) http.Handler {
 			return
 		}
 
+		// Добавляем username в контекст для дальнейшего использования
+		ctx := context.WithValue(r.Context(), "username", claims.Username)
+
 		// Если все ок, передаем управление следующему хендлеру
-		next.ServeHTTP(w, r)
+		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
 
@@ -151,6 +171,18 @@ func signupHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(w, "Signup successful")
 }
 
+// Хендлер для выхода (удаление токена)
+func logoutHandler(w http.ResponseWriter, r *http.Request) {
+	// Удаляем токен, указывая отрицательное время жизни
+	http.SetCookie(w, &http.Cookie{
+		Name:    "token",
+		Value:   "",
+		Expires: time.Now().Add(-time.Hour),
+	})
+
+	fmt.Fprintln(w, "Logged out successfully")
+}
+
 func main() {
 	initDB()
 	defer db.Close(context.Background())
@@ -159,6 +191,8 @@ func main() {
 
 	http.HandleFunc("/login", loginHandler)
 	http.HandleFunc("/signup", signupHandler)
+
+	http.HandleFunc("/logout", logoutHandler)
 
 	//	http.HandleFunc("/home", homeHandler)
 	http.Handle("/home", authMiddleware(http.HandlerFunc(homeHandler)))
