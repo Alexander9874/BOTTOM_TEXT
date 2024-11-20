@@ -5,8 +5,17 @@
 
 !*/
 
-!**/*.sql
 !**/*.html
+
+# for Sasha
+
+!**/*.sql
 !**/*.go
 !**/go.mod
 !**/go.sum
+
+# for Dima
+
+!*/
+!frontend/
+!frontend/**
