@@ -6,8 +6,9 @@
         @run-simulation="runSimulation"
         @reset-simulation="resetSimulation"
         @pause-simulation="pauseSimulation"
-        :singcolorMode="singcolorMode" @updateSingColorMode="toggleMode"
+        :numcolorMode="numcolorMode" @updatenumColors="toggleMode"
         :selectedColor="selectedColor" @update:selectedColor="updateColor"
+        :Torusmode="Torusmode" @updateTorusMode="gridupdate"
       />
     </div>
     <div class="grid-panel">
@@ -16,6 +17,8 @@
         :cols="80"
         :settings="settings"
         :selectedColor="selectedColor"
+        :Torusmode="Torusmode"
+        :numcolorMode="numcolorMode"
         ref="automaton"
       />
     </div>
@@ -33,7 +36,8 @@ export default {
   },
   data() {
     return {
-      singcolorMode: true,
+      numcolorMode: 'one',
+      Torusmode: false,
       selectedColor: 'blue',
       settings: {
         blue: {
@@ -47,6 +51,12 @@ export default {
           birthConditions: new Set([3]),
           deathConditionsOther: new Set([7]),
           birthConditionsOther: new Set([6])
+        },
+        violet: {
+          deathConditions: new Set([8]),
+          birthConditions: new Set([4]),
+          deathConditionsOther: new Set([6]),
+          birthConditionsOther: new Set([5]),
         }
       }    
     };
@@ -56,11 +66,9 @@ export default {
       this.settings = {...newSettings}; // Создаём новый объект
     },
     runSimulation() {
-      if (this.singcolorMode === false) {
-        alert("false");
+      if (this.numcolorMode === 'two' || this.numcolorMode === 'three') {
         this.$refs.automaton.startSimulation();
-      } else {
-        alert("true");
+      } else if (this.numcolorMode === 'one'){
         this.$refs.automaton.onestartSimulation();
       }
     },
@@ -73,10 +81,13 @@ export default {
     updateColor(newColor) {
       this.selectedColor = newColor;
     },
-    toggleMode() {
+    toggleMode(numColors) {
       this.selectedColor = 'blue';
       this.$refs.automaton.resetGrid();
-      this.singcolorMode = !this.singcolorMode;
+      this.numcolorMode = numColors;
+    },
+    gridupdate(gridmode) {
+      this.Torusmode = gridmode;
     }
   }
 };

@@ -1,8 +1,10 @@
 <template>
   <div class="settings">
-    <button @click="toggleMode">Change_mode</button>
-    <h4 v-if="singcolorMode === true">true</h4>
-    <h3 v-if="singcolorMode === false">Blue Settings</h3>
+    <button v-if="numcolorMode === 'one'" @click="setnumColor('two')">Change_mode_on_two</button>
+    <button v-if="numcolorMode === 'two'" @click="setnumColor('three')">Change_mode_on_three</button>
+    <button v-if="numcolorMode === 'three'" @click="setnumColor('one')">Change_mode_on_one</button>
+    <h4 v-if="numcolorMode === 'one'">true</h4>
+    <h3 v-if="numcolorMode === 'two' || numcolorMode === 'three'">Blue Settings</h3>
     <label>
       Death Conditions:
       <input type="text" v-model="blue.deathConditionsInput" placeholder="e.g., 0123" />
@@ -11,46 +13,70 @@
       Birth Conditions:
       <input type="text" v-model="blue.birthConditionsInput" placeholder="e.g., 0123" />
     </label>
-    <label v-if="singcolorMode === false">
+    <label v-if="numcolorMode === 'two' || numcolorMode === 'three'">
       Death Conditions (Other):
       <input type="text" v-model="blue.deathConditionsOtherInput" placeholder="e.g., 0123" />
     </label>
-    <label v-if="singcolorMode === false">
+    <label v-if="numcolorMode === 'two' || numcolorMode === 'three'">
       Birth Conditions (Other):
       <input type="text" v-model="blue.birthConditionsOtherInput" placeholder="e.g., 0123" />
     </label>
 
-    <h3 v-if="singcolorMode === false" >Green Settings</h3>
-    <label v-if="singcolorMode === false" >
+    <h3 v-if="numcolorMode === 'two' || numcolorMode === 'three'" >Green Settings</h3>
+    <label v-if="numcolorMode === 'two' || numcolorMode === 'three'" >
       Death Conditions:
       <input type="text" v-model="green.deathConditionsInput" placeholder="e.g., 0123" />
     </label >
-    <label v-if="singcolorMode === false">
+    <label v-if="numcolorMode === 'two' || numcolorMode === 'three'">
       Birth Conditions:
       <input type="text" v-model="green.birthConditionsInput" placeholder="e.g., 0123" />
     </label>
-    <label v-if="singcolorMode === false">
+    <label v-if="numcolorMode === 'two' || numcolorMode === 'three' ">
       Death Conditions (Other):
       <input type="text" v-model="green.deathConditionsOtherInput" placeholder="e.g., 0123" />
     </label>
-    <label v-if="singcolorMode === false">
+    <label v-if="numcolorMode === 'two' || numcolorMode === 'three'">
       Birth Conditions (Other):
       <input type="text" v-model="green.birthConditionsOtherInput" placeholder="e.g., 0123" />
+    </label>
+
+    <h3 v-if=" numcolorMode === 'three'" >Violet Settings</h3>
+    <label v-if="numcolorMode === 'three'" >
+      Death Conditions:
+      <input type="text" v-model="violet.deathConditionsInput" placeholder="e.g., 0123" />
+    </label >
+    <label v-if=" numcolorMode === 'three'">
+      Birth Conditions:
+      <input type="text" v-model="violet.birthConditionsInput" placeholder="e.g., 0123" />
+    </label>
+    <label v-if=" numcolorMode === 'three' ">
+      Death Conditions (Other):
+      <input type="text" v-model="violet.deathConditionsOtherInput" placeholder="e.g., 0123" />
+    </label>
+    <label v-if="numcolorMode === 'three'">
+      Birth Conditions (Other):
+      <input type="text" v-model="violet.birthConditionsOtherInput" placeholder="e.g., 0123" />
     </label>
 
     <button @click="applySettings">Apply Settings</button>
     <button @click="$emit('run-simulation')">Run</button>
     <button @click="$emit('reset-simulation')">Reset</button>
     <button @click="$emit('pause-simulation')">Pause</button>
-    <button v-if="singcolorMode === false" @click="setColor('blue')">Blue</button>
-    <button v-if="singcolorMode === false" @click="setColor('green')">Green</button>
+    <button @click="setColor('void')">Void</button>
+    <button @click="setColor('blue')">Blue</button>
+    <button v-if="numcolorMode === 'two' || numcolorMode === 'three'" @click="setColor('green')">Green</button>
+    <button v-if="numcolorMode === 'three'" @click="setColor('violet')">Violet</button>
+    <button @click="setColor('dead')">Eraseer</button>
+    <button v-if="Torusmode == false" @click="setGridMode(true)">Torus mode on</button>
+    <button v-if="Torusmode == true" @click="setGridMode(false)">Torus mode off</button>
   </div>
 </template>
 
 <script>
 export default {
   props: {
-    singcolorMode: { type: Boolean, Required: true},
+    numcolorMode: { type: String, Required: 'one'},
+    Torusmode: { type: Boolean, Required: false},
     selectedColor: { type: String, default: 'blue' },
   },
   data() {
@@ -62,6 +88,12 @@ export default {
         birthConditionsOtherInput: '6',
       },
       green: {
+        deathConditionsInput: '8',
+        birthConditionsInput: '3',
+        deathConditionsOtherInput: '7',
+        birthConditionsOtherInput: '6',
+      },
+      violet: {
         deathConditionsInput: '8',
         birthConditionsInput: '3',
         deathConditionsOtherInput: '7',
@@ -88,16 +120,28 @@ export default {
           deathConditionsOther: parseConditions(this.green.deathConditionsOtherInput),
           birthConditionsOther: parseConditions(this.green.birthConditionsOtherInput),
         },
+        violet: {
+          deathConditions: parseConditions(this.violet.deathConditionsInput),
+          birthConditions: parseConditions(this.violet.birthConditionsInput),
+          deathConditionsOther: parseConditions(this.violet.deathConditionsOtherInput),
+          birthConditionsOther: parseConditions(this.violet.birthConditionsOtherInput),
+        },
       };
 
       this.$emit('update-settings', newSettings);
     },
     toggleMode() {
-      this.$emit('updateSingColorMode')
+      this.$emit('updateSingColorMode');
     },
     setColor(color) {
       this.$emit('update:selectedColor', color);
     },
+    setGridMode(gridmode) {
+      this.$emit('updateTorusMode',gridmode);
+    },
+    setnumColor(numColors) {
+      this.$emit('updatenumColors',numColors);
+    }
   },
 };
 </script>

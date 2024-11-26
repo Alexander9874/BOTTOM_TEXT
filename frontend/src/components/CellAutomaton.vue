@@ -19,6 +19,8 @@
      rows: { type: Number, default: 60 },
      cols: { type: Number, default: 60 },
      selectedColor: { type: String,default: 'blue'},
+     Torusmode: {type: Boolean, default: false},
+     numcolorMode: {type: String, default: 'one'},
      settings: {
        type: Object,
        default: () => ({
@@ -33,7 +35,13 @@
            birthConditions: new Set([3]),
            deathConditionsOther: new Set([7]),
            birthConditionsOther: new Set([6])
-         }
+         },
+         violet: {
+          deathConditions: new Set([8]),
+          birthConditions: new Set([4]),
+          deathConditionsOther: new Set([6]),
+          birthConditionsOther: new Set([5]),
+        }
        })
      }
    },
@@ -48,13 +56,9 @@
      createEmptyGrid() {
        return Array.from({ length: this.rows }, () => Array(this.cols).fill('dead'));
      },
-     toggleCell(row, col) {
-       if (this.cells[row][col] !== 'dead') {
-         this.cells[row][col] = 'dead';
-       } else {
-         this.cells[row][col] = this.selectedColor;
-       }
-     },
+    toggleCell(row, col) {
+      this.cells[row][col] = this.selectedColor;
+    },
      countNeighborsForLiveCell(row, col, cellColor) {
      const directions = [
        [0, 1], [1, 1], [1, 0], [1, -1],
@@ -64,8 +68,12 @@
      let otherColorNeighbors = 0;
  
      for (const [dx, dy] of directions) {
-       const newRow = row + dx;
-       const newCol = col + dy;
+       let newRow = row + dx;
+       let newCol = col + dy;
+       if (this.Torusmode) {
+            newRow = (newRow + this.rows)%this.rows;
+            newCol = (newCol + this.cols)%this.cols;
+          }
        if (
          newRow >= 0 && newRow < this.rows &&
          newCol >= 0 && newCol < this.cols
@@ -73,7 +81,7 @@
          const neighborCell = this.cells[newRow][newCol];
          if (neighborCell === cellColor) {
            sameColorNeighbors++;
-         } else if (neighborCell !== 'dead') {
+         } else if (neighborCell !== 'dead' && neighborCell !== 'void') {
            otherColorNeighbors++;
          }
        }
@@ -89,10 +97,15 @@
        ];
        let blueNeighbors = 0;
        let greenNeighbors = 0;
+       let violetNeighbors = 0;
  
        for (const [dx, dy] of directions) {
-         const newRow = row + dx;
-         const newCol = col + dy;
+         let newRow = row + dx;
+         let newCol = col + dy;
+         if (this.Torusmode) {
+            newRow = (newRow + this.rows)%this.rows;
+            newCol = (newCol + this.cols)%this.cols;
+          }
          if (
            newRow >= 0 && newRow < this.rows &&
            newCol >= 0 && newCol < this.cols
@@ -102,17 +115,19 @@
              blueNeighbors++;
            } else if (neighborCell === 'green') {
              greenNeighbors++;
+           } else if (this.numcolorMode === 'three' && neighborCell === 'violet') {
+            violetNeighbors++;
            }
          }
        }
  
-       return { blueNeighbors, greenNeighbors };
+       return { blueNeighbors, greenNeighbors,violetNeighbors };
      },
  
      updateCells() {
        const newCells = this.cells.map((row, rowIndex) =>
          row.map((cell, colIndex) => {
-           if (cell !== 'dead') {
+           if (cell !== 'dead' && cell !== 'void') {
              // Для живой клетки проверяем условия смерти
              const { sameColorNeighbors, otherColorNeighbors } =
                this.countNeighborsForLiveCell(rowIndex, colIndex, cell);
@@ -126,25 +141,34 @@
              } else {
                return cell; // Клетка остаётся живой
              }
-           } else {
+           } else if  (cell === 'void') {
+            return 'void';
+           } else if (cell === 'dead'){
              // Для мёртвой клетки проверяем условия рождения
-             const { blueNeighbors, greenNeighbors } =
+             const { blueNeighbors, greenNeighbors,violetNeighbors } =
                this.countNeighborsForDeadCell(rowIndex, colIndex);
              const birthColors = [];
  
              for (const [color, rules] of Object.entries(this.settings)) {
-               const ownNeighbors =
-                 color === 'blue' ? blueNeighbors : greenNeighbors;
-               const otherNeighbors =
-                 color === 'blue' ? greenNeighbors : blueNeighbors;
-               
-               if (
-                 rules.birthConditions.has(ownNeighbors) ||
-                 rules.birthConditionsOther.has(otherNeighbors)
-               ) {
-                 birthColors.push(color);
-               }
-             }
+          if (this.numcolorMode !== 'three' && color === 'violet') {
+            continue; // Пропускаем purple, если режим выключен
+          }
+          const ownNeighbors =
+            color === 'blue' ? blueNeighbors :
+            color === 'green' ? greenNeighbors :
+            violetNeighbors;
+          const otherNeighbors =
+            color === 'blue' ? greenNeighbors + violetNeighbors :
+            color === 'green' ? blueNeighbors + violetNeighbors :
+            blueNeighbors + greenNeighbors;
+
+          if (
+            rules.birthConditions.has(ownNeighbors) ||
+            rules.birthConditionsOther.has(otherNeighbors)
+          ) {
+            birthColors.push(color);
+          }
+        }
  
              // Проверка конфликтов: если только один цвет соответствует условиям
              return birthColors.length === 1 ? birthColors[0] : 'dead';
@@ -162,8 +186,12 @@
         ];
         let aliveNeighbors = 0;
         for (const [dx, dy] of directions) {
-          const newRow = row + dx;
-          const newCol = col + dy;
+          let newRow = row + dx;
+          let newCol = col + dy;
+          if (this.Torusmode) {
+            newRow = (newRow + this.rows)%this.rows;
+            newCol = (newCol + this.cols)%this.cols;
+          }
           if (
             newRow >= 0 && newRow < this.rows &&
             newCol >= 0 && newCol < this.cols &&
@@ -178,18 +206,20 @@
         const newCells = this.cells.map((row, rowIndex) =>
           row.map((cell, colIndex) => {
             const aliveNeighbors = this.onecountAliveNeighbors(rowIndex, colIndex);
-            if (cell !== 'dead') {
+            if (cell !== 'dead' && cell !== 'void') {
               if (this.settings.blue.deathConditions.has(aliveNeighbors)) {
                 return 'dead';
               } else {
                 return 'blue';
               }
-            } else {
+            } else if (cell === 'dead'){
               if (this.settings.blue.birthConditions.has(aliveNeighbors)) {
                 return 'blue';
               } else {
                 return 'dead';
               }
+            } else if (cell === 'void') {
+              return 'void';
             }
           })
         );
@@ -249,8 +279,15 @@
    background-color: green;
  }
  
+ .violet {
+  background-color: rgb(148, 87, 209);
+ }
  
  .dead {
    background-color: #000000;
+ }
+
+ .void {
+  background-color: red;
  }
  </style>
