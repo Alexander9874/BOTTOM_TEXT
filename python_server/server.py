@@ -35,8 +35,9 @@ DATABASE_CONFIG = {
 def db_GetConnection():
     return psycopg2.connect(**DATABASE_CONFIG)
 
+
 # Регистрации пользователя
-def db_UserSignUp(username: str,
+def db_Signup(username: str,
                   password: str) -> bool:
     try:
         conn = db_GetConnection()
@@ -52,8 +53,9 @@ def db_UserSignUp(username: str,
         print(f"Error: {e}")
         return False
 
+
 # Логин пользователя
-def db_UserLogIn(username: str,
+def db_Login(username: str,
                  password: str) -> bool:
     try:
         conn = db_GetConnection()
@@ -68,7 +70,8 @@ def db_UserLogIn(username: str,
     except Exception as e:
         print(f"Error: {e}")
         return False
-    
+
+
 # Отзыв JWT токена
 def db_RevokeToken(token: str):
     try:
@@ -81,6 +84,7 @@ def db_RevokeToken(token: str):
         conn.close()
     except Exception as e:
         print(f"Error revoking token: {e}")
+
 
 # Проверка отзыва JWT токена
 def db_IsTokenRevoked(token: str) -> bool:
@@ -96,8 +100,9 @@ def db_IsTokenRevoked(token: str) -> bool:
     except Exception as e:
         print(f"Error checking token: {e}")
         return True
-    
-def db_UserUpdateAboutMe(username : str,
+
+
+def db_UpdateAboutMe(username : str,
                          about_me : str) -> bool:
     try:
         conn = db_GetConnection()
@@ -114,7 +119,7 @@ def db_UserUpdateAboutMe(username : str,
         return False
 
 
-def db_ProjectCreate(username : str,
+def db_CreateProject(username : str,
                      projectname : str,
                      description : str) -> bool:
     try:
@@ -131,7 +136,8 @@ def db_ProjectCreate(username : str,
         print(f"Error : {e}")
         return False
 
-def db_ProjectDelete(username : str,
+
+def db_DeleteProject(username : str,
                      projectname : str) -> bool:
     try:
         conn = db_GetConnection()
@@ -146,8 +152,9 @@ def db_ProjectDelete(username : str,
     except Exception as e:
         print(f"Error : {e}")
         return False
-    
-def db_ProjectUpdate(username : str,
+
+
+def db_UpdateProject(username : str,
                      projectname : str,
                      new_projectname : str,
                      new_description : str) -> bool:
@@ -165,7 +172,8 @@ def db_ProjectUpdate(username : str,
         print(f"Error : {e}")
         return False
 
-def db_ProjectPublish(username : str,
+
+def db_PublishProject(username : str,
                       projectname : str) -> bool:
     try:
         conn = db_GetConnection()
@@ -181,7 +189,8 @@ def db_ProjectPublish(username : str,
         print(f"Error : {e}")
         return False
 
-def db_ProjectCopy(username : str,
+
+def db_CopyProject(username : str,
                    projectname : str,
                    new_projectname : str) -> bool:
     try:
@@ -198,7 +207,8 @@ def db_ProjectCopy(username : str,
         print(f"Error : {e}")
         return False
 
-def db_ProjectGetByUser(username_victim: str,
+
+def db_GetProjectsByUser(username_victim: str,
                         username_caller: str) -> List[Dict[str, Any]]:
     try:
         conn = db_GetConnection()
@@ -212,8 +222,9 @@ def db_ProjectGetByUser(username_victim: str,
     except Exception as e:
         print(f"Error: {e}")
         return []
-    
-def db_ProjectGetAllSortedByLikes(username: str,
+
+
+def db_GetAllProjectsSortedByLikes(username: str,
                                   desc: bool) -> List[Dict[str, Any]]:
     try:
         conn = db_GetConnection()
@@ -228,7 +239,8 @@ def db_ProjectGetAllSortedByLikes(username: str,
         print(f"Error: {e}")
         return []
 
-def db_ProjectGetAllSortedByDate(username: str,
+
+def db_GetAllProjectsSortedByDate(username: str,
                                   desc: bool) -> List[Dict[str, Any]]:
     try:
         conn = db_GetConnection()
@@ -244,9 +256,6 @@ def db_ProjectGetAllSortedByDate(username: str,
         return []
 
 
-
-
-#!!!!!!!!!1
 def db_UpdateParam(username: str,
                    project_name: str,
                    param1: int,
@@ -273,11 +282,7 @@ def db_UpdateParam(username: str,
         return False
 
 
-
-
-
-
-def db_ParamGet(username: str,
+def db_GetParam(username: str,
                 projectname : str) -> List[Dict[str, Any]]:
     try:
         conn = db_GetConnection()
@@ -291,10 +296,6 @@ def db_ParamGet(username: str,
     except Exception as e:
         print(f"Error: {e}")
         return []
-
-
-
-
 
 
 def db_PutLike(username : str,
@@ -313,6 +314,7 @@ def db_PutLike(username : str,
         print(f"Error : {e}")
         return False
 
+
 def db_RemoveLike(username : str,
                       projectname : str) -> bool:
     try:
@@ -328,6 +330,7 @@ def db_RemoveLike(username : str,
     except Exception as e:
         print(f"Error : {e}")
         return False
+
 
 def db_SwitchLike(username : str,
                       projectname : str) -> bool:
@@ -352,6 +355,7 @@ def db_SwitchLike(username : str,
 from jose import JWTError, jwt
 import time
 
+
 # Конфигурация
 SECRET_KEY = "your_secret_key"
 ALGORITHM = "HS256"
@@ -365,7 +369,9 @@ def jwt_CreateToken(data: dict, expires_delta: int = ACCESS_TOKEN_EXPIRE_MINUTES
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 
+
 security = HTTPBearer()
+
 
 def jwt_VerifyToken(credentials: HTTPAuthorizationCredentials = Security(security)):
     token = credentials.credentials
@@ -379,7 +385,8 @@ def jwt_VerifyToken(credentials: HTTPAuthorizationCredentials = Security(securit
         return payload
     except JWTError:
         raise HTTPException(status_code=401, detail="Invalid or expired token")
-    
+
+
 # Функция для извлечения username из JWT токена
 def jwt_GetUsername(credentials: HTTPAuthorizationCredentials = Security(security)):
     token = credentials.credentials
@@ -394,184 +401,137 @@ def jwt_GetUsername(credentials: HTTPAuthorizationCredentials = Security(securit
 
 # <| END JWT
 
+
+# API |>
+
 app = FastAPI()
 
-# 1. Возвращает HTML файл
+
+class api_UserPassword_req (BaseModel):
+    username: str
+    password: str
+
+class api_AboutMe_req(BaseModel):
+    about_me: str
+
+class api_ProjectnameDescription_req(BaseModel):
+    projectname: str
+    description: str
+
+class api_Projectname_req(BaseModel):
+    projectname: str
+
+class api_NewProjectnameDescription_req(BaseModel):
+    projectname : str
+    new_projectname : str
+    new_description : str
+
+class api_NewProjectname_req (BaseModel):
+    projectname : str
+    new_projectname: str
+
+class api_Username_req(BaseModel):
+    username: str
+
+class api_SortDesc_req(BaseModel):
+    sort_by: str    # DATE or LIKE
+    desc: bool
+
+class api_Param_req(BaseModel):
+    projectname: str
+    param1: int
+    param2: int
+    param_array: List[int]
+
+
 @app.get("/", response_class=HTMLResponse)
-async def get_html():
+async def api_GetRoot():
     with open("index.html", "r", encoding="utf-8") as f:
         return f.read()
 
-# 2. Запрос к PostgreSQL и возвращение JSON
-@app.get("/query", response_class=JSONResponse)
-async def query_db(query: str):
-    try:
-        conn = db_GetConnection()
-        cur = conn.cursor()
-        cur.execute(query)
-        result = cur.fetchall()
-        cur.close()
-        conn.close()
-        return {"result": result}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
 
-# 4. Проверка JWT токена
 @app.get("/protected", response_class=HTMLResponse)
-async def protected_route(payload: dict = Depends(jwt_VerifyToken)):
+async def api_GetProtected(payload: dict = Depends(jwt_VerifyToken)):
     with open("protected.html", "r", encoding="utf-8") as f:
         return f.read()
 
 
-# Модель данных для запроса signup и login
-class UserPasswordRequest(BaseModel):
-    username: str
-    password: str
-
 @app.post("/signup")
-async def signup(request: UserPasswordRequest):
-    if db_UserSignUp(request.username, request.password):
+async def api_Signup(request: api_UserPassword_req):
+    if db_Signup(request.username, request.password):
         return {"detail": "Registration successful"}
     else:
         raise HTTPException(status_code=400, detail="Registration failed")
 
+
 @app.post("/login")
-async def login(data: UserPasswordRequest):
-    if db_UserLogIn(data.username, data.password):
+async def api_Login(data: api_UserPassword_req):
+    if db_Login(data.username, data.password):
         token = jwt_CreateToken({"sub": data.username})
         return {"access_token": token, "token_type": "bearer"}
     raise HTTPException(status_code=401, detail="Invalid username or password")
 
+
 @app.post("/logout")
-async def logout(credentials: HTTPAuthorizationCredentials = Security(security)):
+async def api_Logout(credentials: HTTPAuthorizationCredentials = Security(security)):
     token = credentials.credentials
     db_RevokeToken(token)
     return {"detail": "Logout successful. Token revoked."}
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-class UpdateAboutMeRequest(BaseModel):
-    about_me: str
-
-@app.post("/userupdateuboutme")
-async def update_about_me(request: UpdateAboutMeRequest, username: str = Depends(jwt_GetUsername)):
-    success = db_UserUpdateAboutMe(username, request.about_me)
+@app.post("/UpdateAuboutMe")
+async def api_UpdateAboutMe(request: api_AboutMe_req, username: str = Depends(jwt_GetUsername)):
+    success = db_UpdateAboutMe(username, request.about_me)
     if success:
         return {"status": "success", "message": "Profile updated successfully"}
     else:
         raise HTTPException(status_code=400, detail="Failed to update profile")
 
 
-
-# db_ProjectCreate(username : str, projectname : str, description : str)
-
-class ProjectCreate(BaseModel):
-    projectname: str
-    description: str
-
-@app.post("/projectcreate")
-async def project_create(request: ProjectCreate, username: str = Depends(jwt_GetUsername)):
-    success = db_ProjectCreate(username, request.projectname, request.description)
+@app.post("/CreateProject")
+async def api_CreateProject(request: api_ProjectnameDescription_req, username: str = Depends(jwt_GetUsername)):
+    success = db_CreateProject(username, request.projectname, request.description)
     if success:
         return {"status": "success", "message": "Profile updated successfully"}
     else:
         raise HTTPException(status_code=400, detail="Failed to update profile")
-    
 
 
-
-
-
-
-# def db_ProjectDelete(username : str, projectname : str) -> bool:
-
-class ProjectDelete(BaseModel):
-    projectname: str
-
-# TODO: есть возможность посылать удаление одного проекта много раз с ответом 200
-# Нужно поправить это в БД!!!!
-@app.post("/projectdelete")
-async def project_delete(request: ProjectDelete, username: str = Depends(jwt_GetUsername)):
-    success = db_ProjectDelete(username, request.projectname)
+# TODO:
+# Есть возможность посылать удаление одного проекта много раз
+# И каждый раз получать ответ 200
+# Нужно поправить это в БД
+@app.post("/DeleteProject")
+async def api_DeleteProject(request: api_Projectname_req, username: str = Depends(jwt_GetUsername)):
+    success = db_DeleteProject(username, request.projectname)
     if success:
         return {"status": "success", "message": "Profile updated successfully"}
     else:
         raise HTTPException(status_code=400, detail="Failed to update profile")
-    
 
 
-
-
-
-
-# def db_ProjectUpdate(username : str, projectname : str, new_projectname : str, new_description : str) -> bool:
-
-class ProjectUpdate(BaseModel):
-    projectname : str
-    new_projectname : str
-    new_description : str
-
-@app.post("/projectupdate")
-async def project_update(request: ProjectUpdate, username: str = Depends(jwt_GetUsername)):
-    success = db_ProjectUpdate(username, request.projectname, request.new_projectname, request.new_description)
+@app.post("/UpdateProject")
+async def api_UpdateProject(request: api_NewProjectnameDescription_req, username: str = Depends(jwt_GetUsername)):
+    success = db_UpdateProject(username, request.projectname, request.new_projectname, request.new_description)
     if success:
         return {"status": "success", "message": "Profile updated successfully"}
     else:
         raise HTTPException(status_code=400, detail="Failed to update profile")
-    
 
 
-
-# def db_ProjectPublish(username : str, projectname : str) -> bool:
-
-class ProjectPublish(BaseModel):
-    projectname : str
-
-@app.post("/projectpublish")
-async def project_publish(request: ProjectPublish, username: str = Depends(jwt_GetUsername)):
-    success = db_ProjectPublish(username, request.projectname)
+@app.post("/PublishProject")
+async def api_PublishProject(request: api_Projectname_req, username: str = Depends(jwt_GetUsername)):
+    success = db_PublishProject(username, request.projectname)
     if success:
         return {"status": "success", "message": "Profile updated successfully"}
     else:
         raise HTTPException(status_code=400, detail="Failed to update profile")
-    
 
 
-
-
-
-
-# def db_ProjectCopy(username : str, projectname : str, new_projectname : str) -> bool:
-
-class ProjectCopy(BaseModel):
-    projectname : str
-    new_projectname: str
-
-@app.post("/projectcopy")
-async def project_copy(request: ProjectCopy,
+@app.post("/CopyProject")
+async def api_CopyProject(request: api_NewProjectname_req,
                        username: str = Depends(jwt_GetUsername)):
-    success = db_ProjectCopy(username,
+    success = db_CopyProject(username,
                              request.projectname,
                              request.new_projectname)
     if success:
@@ -582,17 +542,11 @@ async def project_copy(request: ProjectCopy,
                             detail="Failed to update profile")
     
 
-
-
-
-class ProjectGetRequest(BaseModel):
-    username: str
-
-@app.get("/projectgetbyuser")
-async def get_project_by_user(request: ProjectGetRequest,
+@app.get("/GetProjectsByUser")
+async def api_GetProjectsByUser(request: api_Username_req,
                               username: str = Depends(jwt_GetUsername)):
     try:
-        result = db_ProjectGetByUser(request.username,
+        result = db_GetProjectsByUser(request.username,
                                        username)
         
         if not result:
@@ -603,19 +557,8 @@ async def get_project_by_user(request: ProjectGetRequest,
         raise HTTPException(status_code=500, detail=f"Internal server error: {e}")
 
 
-
-# def db_ProjectGetAllSortedByLikes(username: str, desc: bool) -> List[Dict[str, Any]]:
-# def db_ProjectGetAllSortedByDate(username: str, desc: bool) -> List[Dict[str, Any]]:
-
-class ProjectGetAll(BaseModel):
-    # sort_by should be
-    # DATE or LIKE
-    sort_by: str
-    desc: bool
-
-
-@app.get("/projectgetall")
-async def get_project_all(request: ProjectGetAll, username: str = Depends(jwt_GetUsername)):
+@app.get("/GetAllProjects")
+async def api_GetAllProjects(request: api_SortDesc_req, username: str = Depends(jwt_GetUsername)):
     if request.sort_by == "DATE":
         sort_by_date = True
     elif request.sort_by == "LIKE":
@@ -625,9 +568,9 @@ async def get_project_all(request: ProjectGetAll, username: str = Depends(jwt_Ge
 
     try:
         if sort_by_date:
-            result = db_ProjectGetAllSortedByDate(username, request.desc)
+            result = db_GetAllProjectsSortedByDate(username, request.desc)
         else:
-            result = db_ProjectGetAllSortedByLikes(username, request.desc)
+            result = db_GetAllProjectsSortedByLikes(username, request.desc)
         
         if not result:
             raise HTTPException(status_code=404, detail="No projects found")
@@ -635,34 +578,12 @@ async def get_project_all(request: ProjectGetAll, username: str = Depends(jwt_Ge
         return {"status": "success", "data": result}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Internal server error: {e}")
-    
 
 
-
-
-
-
-# def db_UpdateParam(username: str,
-#                    project_name: str,
-#                    param1: int,
-#                    param2: int,
-#                    param_array: List[int]) -> bool:
-
-
-# Модель данных для входного JSON
-class UpdateParamRequest(BaseModel):
-    projectname: str
-    param1: int
-    param2: int
-    param_array: List[int]
-
-
-@app.post("/updateparam")
-async def update_param(request: UpdateParamRequest, 
+@app.post("/UpdateParam")
+async def api_UpdateParam(request: api_Param_req, 
                        username: str = Depends(jwt_GetUsername)
 ):
-    print("hello")
-
     result = db_UpdateParam(
         username=username,
         project_name=request.projectname,
@@ -678,31 +599,11 @@ async def update_param(request: UpdateParamRequest,
         raise HTTPException(status_code=400, detail="Failed to update parameters")
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# def db_ParamGet(username: str,
-#                 projectname : str) -> List[Dict[str, Any]]:
-
-class ParamGetReq(BaseModel):
-    projectname: str
-
-@app.get("/paramget")
-async def get_params(request: ParamGetReq,
+@app.get("/GetParam")
+async def api_GetParam(request: api_Projectname_req,
                      username: str = Depends(jwt_GetUsername)):
     try:
-        result = db_ParamGet(username, request.projectname)
+        result = db_GetParam(username, request.projectname)
 
         if not result:
             raise HTTPException(status_code=404, detail="No projects found")
@@ -710,28 +611,10 @@ async def get_params(request: ParamGetReq,
         return {"status": "success", "data": result}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Internal server error: {e}")
-    
 
 
-
-
-
-
-
-# def db_PutLike(username : str,
-#                       projectname : str) -> bool:
-
-# def db_RemoveLike(username : str,
-#                       projectname : str) -> bool:
-
-# def db_SwitchLike(username : str,
-#                       projectname : str) -> bool:
-
-class LikeReq(BaseModel):
-    projectname : str
-
-@app.post("/putlike")
-async def PutLike(request: LikeReq,
+@app.post("/PutLike")
+async def api_PutLike(request: api_Projectname_req,
               username: str = Depends(jwt_GetUsername)):
     success = db_PutLike(username,
                          request.projectname)
@@ -741,9 +624,10 @@ async def PutLike(request: LikeReq,
     else:
         raise HTTPException(status_code=400,
                             detail="Failed to update profile")
-    
-@app.post("/removelike")
-async def RemoveLike(request: LikeReq,
+
+
+@app.post("/RemoveLike")
+async def api_RemoveLike(request: api_Projectname_req,
               username: str = Depends(jwt_GetUsername)):
     success = db_RemoveLike(username,
                             request.projectname)
@@ -753,9 +637,10 @@ async def RemoveLike(request: LikeReq,
     else:
         raise HTTPException(status_code=400,
                             detail="Failed to update profile")
-    
-@app.post("/switchlike")
-async def SwitchLike(request: LikeReq,
+
+
+@app.post("/SwitchLike")
+async def api_SwitchLike(request: api_Projectname_req,
               username: str = Depends(jwt_GetUsername)):
     success = db_SwitchLike(username,
                             request.projectname)
