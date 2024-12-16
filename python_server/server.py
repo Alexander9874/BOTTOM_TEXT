@@ -6,6 +6,11 @@ from fastapi import Security
 
 from pydantic import BaseModel
 
+from typing import List
+
+
+
+
 
 #from psycopg2.extras import RealDictCursor
 
@@ -237,6 +242,108 @@ def db_ProjectGetAllSortedByDate(username: str,
     except Exception as e:
         print(f"Error: {e}")
         return []
+
+
+
+
+#!!!!!!!!!1
+def db_UpdateParam(username: str,
+                   project_name: str,
+                   param1: int,
+                   param2: int,
+                   param_array: List[int]) -> bool:
+    try:
+        conn = db_GetConnection()
+        cur = conn.cursor()
+        
+        cur.execute(
+            "SELECT param_Update(%s, %s, %s, %s, %s)",
+            (username, project_name, param1, param2, param_array),
+        )
+        
+        result = cur.fetchone()[0]
+        
+        conn.commit()
+        cur.close()
+        conn.close()
+        
+        return result == 0
+    except Exception as e:
+        print(f"Error: {e}")
+        return False
+
+
+
+
+
+
+def db_ParamGet(username: str,
+                projectname : str) -> List[Dict[str, Any]]:
+    try:
+        conn = db_GetConnection()
+        cur = conn.cursor()
+        cur.execute("SELECT param_Get(%s, %s)",
+                    (username, projectname))
+        result = cur.fetchall()
+        cur.close()
+        conn.close()
+        return result
+    except Exception as e:
+        print(f"Error: {e}")
+        return []
+
+
+
+
+
+
+def db_PutLike(username : str,
+                      projectname : str) -> bool:
+    try:
+        conn = db_GetConnection()
+        cur = conn.cursor()
+        cur.execute("SELECT like_PutLike(%s, %s)",
+                    (username, projectname))
+        result = cur.fetchone()[0]
+        conn.commit()
+        cur.close()
+        conn.close()
+        return result == 0
+    except Exception as e:
+        print(f"Error : {e}")
+        return False
+
+def db_RemoveLike(username : str,
+                      projectname : str) -> bool:
+    try:
+        conn = db_GetConnection()
+        cur = conn.cursor()
+        cur.execute("SELECT like_RemoveLike(%s, %s)",
+                    (username, projectname))
+        result = cur.fetchone()[0]
+        conn.commit()
+        cur.close()
+        conn.close()
+        return result == 0
+    except Exception as e:
+        print(f"Error : {e}")
+        return False
+
+def db_SwitchLike(username : str,
+                      projectname : str) -> bool:
+    try:
+        conn = db_GetConnection()
+        cur = conn.cursor()
+        cur.execute("SELECT like_Switch(%s, %s)",
+                    (username, projectname))
+        result = cur.fetchone()[0]
+        conn.commit()
+        cur.close()
+        conn.close()
+        return result == 0
+    except Exception as e:
+        print(f"Error : {e}")
+        return False
 
 # <| END DATABASE
 
@@ -528,3 +635,133 @@ async def get_project_all(request: ProjectGetAll, username: str = Depends(jwt_Ge
         return {"status": "success", "data": result}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Internal server error: {e}")
+    
+
+
+
+
+
+
+# def db_UpdateParam(username: str,
+#                    project_name: str,
+#                    param1: int,
+#                    param2: int,
+#                    param_array: List[int]) -> bool:
+
+
+# Модель данных для входного JSON
+class UpdateParamRequest(BaseModel):
+    projectname: str
+    param1: int
+    param2: int
+    param_array: List[int]
+
+
+@app.post("/updateparam")
+async def update_param(request: UpdateParamRequest, 
+                       username: str = Depends(jwt_GetUsername)
+):
+    print("hello")
+
+    result = db_UpdateParam(
+        username=username,
+        project_name=request.projectname,
+        param1=request.param1,
+        param2=request.param2,
+        param_array=request.param_array
+    )
+    
+    if result:
+        return {"status": "success",
+                "message": "Profile updated successfully"}
+    else:
+        raise HTTPException(status_code=400, detail="Failed to update parameters")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# def db_ParamGet(username: str,
+#                 projectname : str) -> List[Dict[str, Any]]:
+
+class ParamGetReq(BaseModel):
+    projectname: str
+
+@app.get("/paramget")
+async def get_params(request: ParamGetReq,
+                     username: str = Depends(jwt_GetUsername)):
+    try:
+        result = db_ParamGet(username, request.projectname)
+
+        if not result:
+            raise HTTPException(status_code=404, detail="No projects found")
+        
+        return {"status": "success", "data": result}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Internal server error: {e}")
+    
+
+
+
+
+
+
+
+# def db_PutLike(username : str,
+#                       projectname : str) -> bool:
+
+# def db_RemoveLike(username : str,
+#                       projectname : str) -> bool:
+
+# def db_SwitchLike(username : str,
+#                       projectname : str) -> bool:
+
+class LikeReq(BaseModel):
+    projectname : str
+
+@app.post("/putlike")
+async def PutLike(request: LikeReq,
+              username: str = Depends(jwt_GetUsername)):
+    success = db_PutLike(username,
+                         request.projectname)
+    if success:
+        return {"status": "success",
+                "message": "Profile updated successfully"}
+    else:
+        raise HTTPException(status_code=400,
+                            detail="Failed to update profile")
+    
+@app.post("/removelike")
+async def RemoveLike(request: LikeReq,
+              username: str = Depends(jwt_GetUsername)):
+    success = db_RemoveLike(username,
+                            request.projectname)
+    if success:
+        return {"status": "success",
+                "message": "Profile updated successfully"}
+    else:
+        raise HTTPException(status_code=400,
+                            detail="Failed to update profile")
+    
+@app.post("/switchlike")
+async def SwitchLike(request: LikeReq,
+              username: str = Depends(jwt_GetUsername)):
+    success = db_SwitchLike(username,
+                            request.projectname)
+    if success:
+        return {"status": "success",
+                "message": "Profile updated successfully"}
+    else:
+        raise HTTPException(status_code=400,
+                            detail="Failed to update profile")
