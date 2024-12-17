@@ -150,76 +150,71 @@ CREATE OR REPLACE FUNCTION project_GetByUser(
     username_victim VARCHAR(31),
     username_caller VARCHAR(31)
 )
-RETURNS TABLE(
-    projectname VARCHAR,
-    create_date TIMESTAMP,
-    public BOOLEAN,
-    publish_date TIMESTAMP,
-    description VARCHAR,
-    likes_count INT,
-    caller_liked BOOLEAN
-) AS $$
+RETURNS JSONB AS $$
+DECLARE
+    result JSONB;
 BEGIN
     IF username_victim = username_caller THEN
-        RETURN QUERY
-        SELECT 
-            p.projectname, 
-            p.create_date, 
-            p.public, 
-            p.publish_date, 
-            p.description,
-            COALESCE(l.likes_count, 0) AS likes_count,
-            EXISTS (
-                SELECT 1
-                FROM Likes l2
-                INNER JOIN Users uc ON l2.id_user = uc.id_user
-                WHERE l2.id_project = p.id_project
-                  AND uc.username = username_caller
-            ) AS caller_liked
-        FROM 
-            Projects p
-        INNER JOIN 
-            Users uv ON p.id_user = uv.id_user
-        LEFT JOIN 
-            (SELECT id_project, COUNT(*)::INT AS likes_count
-             FROM Likes
-             GROUP BY id_project) l
-        ON 
-            p.id_project = l.id_project
-        WHERE 
-            uv.username = username_victim
-            AND p.deleted = FALSE;
+        SELECT jsonb_agg(
+            jsonb_build_object(
+                'projectname', p.projectname,
+                'create_date', p.create_date,
+                'public', p.public,
+                'publish_date', p.publish_date,
+                'description', p.description,
+                'likes_count', COALESCE(l.likes_count, 0),
+                'caller_liked', EXISTS (
+                    SELECT 1
+                    FROM Likes l2
+                    INNER JOIN Users uc ON l2.id_user = uc.id_user
+                    WHERE l2.id_project = p.id_project
+                      AND uc.username = username_caller
+                )
+            )
+        )
+        INTO result
+        FROM Projects p
+        INNER JOIN Users uv ON p.id_user = uv.id_user
+        LEFT JOIN (
+            SELECT id_project, COUNT(*)::INT AS likes_count
+            FROM Likes
+            GROUP BY id_project
+        ) l ON p.id_project = l.id_project
+        WHERE uv.username = username_victim
+          AND p.deleted = FALSE;
+
     ELSE
-        RETURN QUERY
-        SELECT 
-            p.projectname, 
-            p.create_date, 
-            p.public, 
-            p.publish_date, 
-            p.description,
-            COALESCE(l.likes_count, 0) AS likes_count,
-            EXISTS (
-                SELECT 1
-                FROM Likes l2
-                INNER JOIN Users uc ON l2.id_user = uc.id_user
-                WHERE l2.id_project = p.id_project
-                  AND uc.username = username_caller
-            ) AS caller_liked
-        FROM 
-            Projects p
-        INNER JOIN 
-            Users uv ON p.id_user = uv.id_user
-        LEFT JOIN 
-            (SELECT id_project, COUNT(*)::INT AS likes_count
-             FROM Likes
-             GROUP BY id_project) l
-        ON 
-            p.id_project = l.id_project
-        WHERE 
-            uv.username = username_victim
-            AND p.public = TRUE
-            AND p.deleted = FALSE;
+        SELECT jsonb_agg(
+            jsonb_build_object(
+                'projectname', p.projectname,
+                'create_date', p.create_date,
+                'public', p.public,
+                'publish_date', p.publish_date,
+                'description', p.description,
+                'likes_count', COALESCE(l.likes_count, 0),
+                'caller_liked', EXISTS (
+                    SELECT 1
+                    FROM Likes l2
+                    INNER JOIN Users uc ON l2.id_user = uc.id_user
+                    WHERE l2.id_project = p.id_project
+                      AND uc.username = username_caller
+                )
+            )
+        )
+        INTO result
+        FROM Projects p
+        INNER JOIN Users uv ON p.id_user = uv.id_user
+        LEFT JOIN (
+            SELECT id_project, COUNT(*)::INT AS likes_count
+            FROM Likes
+            GROUP BY id_project
+        ) l ON p.id_project = l.id_project
+        WHERE uv.username = username_victim
+          AND p.public = TRUE
+          AND p.deleted = FALSE;
     END IF;
+
+    RETURN result;
 END;
 $$ LANGUAGE plpgsql;
 
@@ -275,30 +270,43 @@ $$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE FUNCTION project_GetAllSortedByLikes(
     username_caller VARCHAR(31),
-	descend BOOLEAN
+    descend BOOLEAN
 )
-RETURNS TABLE(
-    projectname VARCHAR,
-    create_date TIMESTAMP,
-    public BOOLEAN,
-    publish_date TIMESTAMP,
-    description VARCHAR,
-    owner_username VARCHAR,
-    likes_count INT,
-    caller_liked BOOLEAN
-) AS $$
+RETURNS SETOF JSON AS $$
 BEGIN
-	IF descend THEN
-	    RETURN QUERY
-	    SELECT * 
-	    FROM get_all_projects(username_caller)
-	    ORDER BY likes_count DESC;
-	ELSE
-	    RETURN QUERY
-	    SELECT * 
-	    FROM get_all_projects(username_caller)
-	    ORDER BY likes_count ASC;
-	END IF;
+    IF descend THEN
+        RETURN QUERY
+        SELECT row_to_json(t)
+        FROM (
+            SELECT 
+                projectname, 
+                create_date, 
+                public, 
+                publish_date, 
+                description, 
+                owner_username, 
+                likes_count, 
+                caller_liked
+            FROM get_all_projects(username_caller)
+            ORDER BY likes_count DESC NULLS LAST
+        ) t;
+    ELSE
+        RETURN QUERY
+        SELECT row_to_json(t)
+        FROM (
+            SELECT 
+                projectname, 
+                create_date, 
+                public, 
+                publish_date, 
+                description, 
+                owner_username, 
+                likes_count, 
+                caller_liked
+            FROM get_all_projects(username_caller)
+            ORDER BY likes_count ASC NULLS LAST
+        ) t;
+    END IF;
 END;
 $$ LANGUAGE plpgsql;
 
@@ -306,30 +314,43 @@ $$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE FUNCTION project_GetAllSortedByDate(
     username_caller VARCHAR(31),
-	descend BOOLEAN
+    descend BOOLEAN
 )
-RETURNS TABLE(
-    projectname VARCHAR,
-    create_date TIMESTAMP,
-    public BOOLEAN,
-    publish_date TIMESTAMP,
-    description VARCHAR,
-    owner_username VARCHAR,
-    likes_count INT,
-    caller_liked BOOLEAN
-) AS $$
+RETURNS SETOF JSON AS $$
 BEGIN
-	IF descend THEN
-	    RETURN QUERY
-	    SELECT * 
-	    FROM get_all_projects(username_caller)
-	    ORDER BY publish_date DESC NULLS LAST;
-	ELSE
-	    RETURN QUERY
-	    SELECT * 
-	    FROM get_all_projects(username_caller)
-	    ORDER BY publish_date ASC NULLS LAST;
-	END IF;
+    IF descend THEN
+        RETURN QUERY
+        SELECT row_to_json(t)
+        FROM (
+            SELECT 
+                projectname, 
+                create_date, 
+                public, 
+                publish_date, 
+                description, 
+                owner_username, 
+                likes_count, 
+                caller_liked
+            FROM get_all_projects(username_caller)
+            ORDER BY publish_date DESC NULLS LAST
+        ) t;
+    ELSE
+        RETURN QUERY
+        SELECT row_to_json(t)
+        FROM (
+            SELECT 
+                projectname, 
+                create_date, 
+                public, 
+                publish_date, 
+                description, 
+                owner_username, 
+                likes_count, 
+                caller_liked
+            FROM get_all_projects(username_caller)
+            ORDER BY publish_date ASC NULLS LAST
+        ) t;
+    END IF;
 END;
 $$ LANGUAGE plpgsql;
 

@@ -9,17 +9,10 @@ from pydantic import BaseModel
 from typing import List
 
 
-
-
-
-#from psycopg2.extras import RealDictCursor
-
-
-
 # DATABASE |>
 
 import psycopg2
-from typing import List, Dict, Any
+from typing import List
 
 
 DATABASE_CONFIG = {
@@ -117,6 +110,26 @@ def db_UpdateAboutMe(username : str,
     except Exception as e:
         print(f"Error : {e}")
         return False
+    
+
+def db_GetUserInfo(username: str):
+    try:
+        conn = db_GetConnection()
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM user_GetInfo(%s)",
+                    (username,))
+        result = cur.fetchall()
+
+        if result and isinstance(result[0], tuple):
+            result = result[0][0]
+        # TODO else throw exception SQl returns bad format
+
+        cur.close()
+        conn.close()
+        return result
+    except Exception as e:
+        print(f"Error: {e}")
+        return []
 
 
 def db_CreateProject(username : str,
@@ -209,13 +222,18 @@ def db_CopyProject(username : str,
 
 
 def db_GetProjectsByUser(username_victim: str,
-                        username_caller: str) -> List[Dict[str, Any]]:
+                        username_caller: str):
     try:
         conn = db_GetConnection()
         cur = conn.cursor()
-        cur.execute("SELECT project_GetByUser(%s, %s)",
+        cur.execute("SELECT * FROM project_GetByUser(%s, %s)",
                     (username_victim, username_caller))
         result = cur.fetchall()
+
+        if result and isinstance(result[0], tuple):
+            result = result[0][0]
+        # TODO else throw exception SQl returns bad format
+
         cur.close()
         conn.close()
         return result
@@ -225,13 +243,14 @@ def db_GetProjectsByUser(username_victim: str,
 
 
 def db_GetAllProjectsSortedByLikes(username: str,
-                                  desc: bool) -> List[Dict[str, Any]]:
+                                  desc: bool):
     try:
         conn = db_GetConnection()
         cur = conn.cursor()
-        cur.execute("SELECT project_GetAllSortedByLikes(%s, %s)",
+        cur.execute("SELECT * FROM project_GetAllSortedByLikes(%s, %s)",
                     (username, desc))
         result = cur.fetchall()
+        result = [row[0] for row in result]
         cur.close()
         conn.close()
         return result
@@ -241,13 +260,14 @@ def db_GetAllProjectsSortedByLikes(username: str,
 
 
 def db_GetAllProjectsSortedByDate(username: str,
-                                  desc: bool) -> List[Dict[str, Any]]:
+                                  desc: bool):
     try:
         conn = db_GetConnection()
         cur = conn.cursor()
-        cur.execute("SELECT project_GetAllSortedByDate(%s, %s)",
+        cur.execute("SELECT * FROM project_GetAllSortedByDate(%s, %s)",
                     (username, desc))
         result = cur.fetchall()
+        result = [row[0] for row in result]
         cur.close()
         conn.close()
         return result
@@ -283,13 +303,18 @@ def db_UpdateParam(username: str,
 
 
 def db_GetParam(username: str,
-                projectname : str) -> List[Dict[str, Any]]:
+                projectname : str):
     try:
         conn = db_GetConnection()
         cur = conn.cursor()
-        cur.execute("SELECT param_Get(%s, %s)",
+        cur.execute("SELECT * FROM param_Get(%s, %s)",
                     (username, projectname))
         result = cur.fetchall()
+
+        if result and isinstance(result[0], tuple):
+            result = result[0][0][0]
+        # TODO как предыдущее todo
+
         cur.close()
         conn.close()
         return result
@@ -473,7 +498,7 @@ async def api_Login(data: api_UserPassword_req):
 
 
 @app.post("/logout")
-async def api_Logout(credentials: HTTPAuthorizationCredentials = Security(security)):
+async def api_Logout(credentials: HTTPAuthorizationCredentials = Security(security), username: str = Depends(jwt_GetUsername)):
     token = credentials.credentials
     db_RevokeToken(token)
     return {"detail": "Logout successful. Token revoked."}
@@ -486,6 +511,26 @@ async def api_UpdateAboutMe(request: api_AboutMe_req, username: str = Depends(jw
         return {"status": "success", "message": "Profile updated successfully"}
     else:
         raise HTTPException(status_code=400, detail="Failed to update profile")
+
+
+# def db_GetUserInfo(username: str):
+
+
+@app.get("/GetUserInfo")
+async def api_GetUserInfo(username: str = Depends(jwt_GetUsername)):
+    try:
+        result = db_GetUserInfo(username)
+
+        if not result:
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        return {"status": "success", "data": result}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Internal server error: {e}")
+
+
+
+
 
 
 @app.post("/CreateProject")

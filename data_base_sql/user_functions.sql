@@ -78,6 +78,32 @@ $$ LANGUAGE plpgsql;
 
 ----
 
+CREATE OR REPLACE FUNCTION user_GetInfo(
+    input_username VARCHAR(31)
+)
+RETURNS JSON AS $$
+DECLARE
+    result JSON;
+BEGIN
+    -- Получаем username и about_me в JSON формате
+    SELECT json_build_object(
+        'username', username,
+        'about_me', about_me
+    ) INTO result
+    FROM Users
+    WHERE username = input_username;
+
+    -- Если пользователь не найден, возвращаем NULL
+    IF result IS NULL THEN
+        RAISE EXCEPTION 'User "%" does not exist.', input_username;
+    END IF;
+
+    RETURN result; -- Возвращаем результат
+END;
+$$ LANGUAGE plpgsql;
+
+----
+
 CREATE OR REPLACE FUNCTION user_DoesExist(
 	p_username VARCHAR(31)
 )
