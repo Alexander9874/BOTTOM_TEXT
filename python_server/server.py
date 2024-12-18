@@ -416,6 +416,10 @@ def jwt_VerifyToken(credentials: HTTPAuthorizationCredentials = Security(securit
 def jwt_GetUsername(credentials: HTTPAuthorizationCredentials = Security(security)):
     token = credentials.credentials
     try:
+        # Проверяем, отозван ли токен
+        if db_IsTokenRevoked(token):
+            raise HTTPException(status_code=401, detail="Token has been revoked")
+        
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         username = payload.get("sub")
         if username is None:

@@ -1,35 +1,3 @@
--- CREATE OR REPLACE FUNCTION param_Get(
---     p_username VARCHAR(31),
---     p_projectname VARCHAR(31)
--- )
--- RETURNS TABLE(
---     param1 INT,
---     param2 INT,
---     grid INT[]
--- ) AS $$
--- BEGIN
---     IF EXISTS (
---         SELECT 1
---         FROM Projects p
---         INNER JOIN Users u ON p.id_user = u.id_user
---         WHERE p.projectname = p_projectname
---           AND (p.public = TRUE OR u.username = p_username)
---           AND p.deleted = FALSE
---     ) THEN
---         RETURN QUERY
---         SELECT 
---             p.param1, 
---             p.param2, 
---             p.grid
---         FROM Params p
---         INNER JOIN Projects pr ON p.id_project = pr.id_project
---         WHERE pr.projectname = p_projectname;
---     ELSE
---         RAISE EXCEPTION 'Project "% does not exist or access denied.', p_projectname;
---     END IF;
--- END;
--- $$ LANGUAGE plpgsql;
-
 CREATE OR REPLACE FUNCTION param_Get(
     p_username VARCHAR(31),
     p_projectname VARCHAR(31)

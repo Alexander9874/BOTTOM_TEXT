@@ -21,6 +21,7 @@ SELECT user_UpdateAboutMe('user3', 'I am user number 3!');
 SELECT user_UpdateAboutMe('user4', 'I am user number 4!');
 SELECT user_UpdateAboutMe('user5', 'I am user number 5!');
 
+SELECT * FROM user_GetInfo('user1');
 
 SELECT user_DoesExist('user5');
 
@@ -139,4 +140,4 @@ SELECT like_Switch('user5', 'project41');
 
 
 SELECT project_GetAllSortedByLikes('user1', TRUE);
-SELECT project_GetAllSortedByLikes('user1', FALSE);
+SELECT project_GetAllSortedByLikes('user3', FALSE);

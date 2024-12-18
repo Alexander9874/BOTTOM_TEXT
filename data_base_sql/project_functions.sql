@@ -59,7 +59,9 @@ BEGIN
 
     SELECT id_project INTO id_project_proc
     FROM Projects
-    WHERE projectname = input_projectname AND id_user = id_user_proc;
+    WHERE projectname = input_projectname
+	AND id_user = id_user_proc
+	AND deleted = false;
 
     IF NOT FOUND THEN
 		-- project not found
@@ -143,6 +145,57 @@ BEGIN
     RETURN 0;
 END;
 $$ LANGUAGE plpgsql;
+
+----
+
+CREATE OR REPLACE FUNCTION project_Publish(
+    input_username VARCHAR(31),
+    input_projectname VARCHAR(31)
+)
+RETURNS INT AS $$
+DECLARE
+    id_user_proc INT;
+    id_project_proc INT;
+BEGIN
+    -- Получаем id пользователя
+    SELECT id_user INTO id_user_proc
+    FROM Users
+    WHERE username = input_username;
+
+    IF NOT FOUND THEN
+        RETURN 1; -- Пользователь не найден
+    END IF;
+
+    -- Получаем id проекта и проверяем, принадлежит ли проект пользователю
+    SELECT id_project INTO id_project_proc
+    FROM Projects
+    WHERE projectname = input_projectname
+      AND id_user = id_user_proc
+	  AND deleted = false;
+
+    IF NOT FOUND THEN
+        RETURN 1; -- Проект не принадлежит пользователю
+    END IF;
+
+    -- Проверяем, опубликован ли проект (public = true)
+    IF EXISTS (
+        SELECT 1 FROM Projects
+        WHERE id_project = id_project_proc
+          AND public = TRUE
+    ) THEN
+        RETURN 1; -- Проект уже опубликован
+    END IF;
+
+    -- Обновляем флаг public и добавляем дату публикации
+    UPDATE Projects
+    SET public = TRUE,
+        publish_date = CURRENT_TIMESTAMP
+    WHERE id_project = id_project_proc;
+
+    RETURN 0; -- Успешно опубликован
+END;
+$$ LANGUAGE plpgsql;
+
 
 ----
 

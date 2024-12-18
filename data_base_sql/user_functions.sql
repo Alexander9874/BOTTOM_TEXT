@@ -88,7 +88,8 @@ BEGIN
     -- Получаем username и about_me в JSON формате
     SELECT json_build_object(
         'username', username,
-        'about_me', about_me
+        'about_me', about_me,
+		'create_date', create_date
     ) INTO result
     FROM Users
     WHERE username = input_username;
