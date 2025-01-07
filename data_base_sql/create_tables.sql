@@ -2,12 +2,14 @@ DROP TABLE IF EXISTS Users CASCADE;
 DROP TABLE IF EXISTS Projects CASCADE;
 DROP TABLE IF EXISTS Likes CASCADE;
 DROP TABLE IF EXISTS Params CASCADE;
+DROP TABLE IF EXISTS RevokedTokens CASCADE;
 
 CREATE TABLE Users (
     id_user SERIAL PRIMARY KEY,
     username VARCHAR(31) NOT NULL UNIQUE,
     password_hash BIGINT NOT NULL,
-    about_me VARCHAR(255)
+    about_me VARCHAR(255),
+	create_date TIMESTAMP NOT NULL DEFAULT (CURRENT_TIMESTAMP)
 );
 
 CREATE TABLE Projects (
@@ -36,4 +38,10 @@ CREATE TABLE Params (
     param1 INT NOT NULL,
     param2 INT NOT NULL,
     grid INT[]
+);
+
+CREATE TABLE RevokedTokens (
+    id_token SERIAL PRIMARY KEY,
+    token_text TEXT NOT NULL UNIQUE,
+    revoked_time TIMESTAMP DEFAULT NOW()
 );
