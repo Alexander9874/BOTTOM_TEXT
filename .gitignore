@@ -7,20 +7,10 @@
 
 !**/*.html
 
-<<<<<<< HEAD
-# for Sasha
-
-!**/*.sql
-!**/*.go
-!**/go.mod
-!**/go.sum
-
-# for Dima
-=======
 !**/*.sql
 !**/*.py
 !**/*.ipynb
->>>>>>> main
+!**/*.vue
 
 !*/
 !frontend/
