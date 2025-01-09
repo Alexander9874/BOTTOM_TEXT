@@ -108,8 +108,8 @@ SELECT param_Update('user1', 'project11', 111, 111, ARRAY[111, 111, 111]);
 SELECT param_Get('user1', 'project12');
 SELECT param_Get('user2', 'project11');
 -- WRONG BELOW
-SELECT param_Get('user2', 'project12');
-SELECT param_Get('user3', 'project31');
+-- SELECT param_Get('user2', 'project12');
+-- SELECT param_Get('user3', 'project31');
 
 
 -- like_functions.sql

@@ -340,7 +340,7 @@ BEGIN
                 owner_username, 
                 likes_count, 
                 caller_liked
-            FROM get_all_projects(username_caller)
+            FROM projects_GetAll(username_caller)
             ORDER BY likes_count DESC NULLS LAST
         ) t;
     ELSE
@@ -356,7 +356,7 @@ BEGIN
                 owner_username, 
                 likes_count, 
                 caller_liked
-            FROM get_all_projects(username_caller)
+            FROM projects_GetAll(username_caller)
             ORDER BY likes_count ASC NULLS LAST
         ) t;
     END IF;
@@ -384,7 +384,7 @@ BEGIN
                 owner_username, 
                 likes_count, 
                 caller_liked
-            FROM get_all_projects(username_caller)
+            FROM projects_GetAll(username_caller)
             ORDER BY publish_date DESC NULLS LAST
         ) t;
     ELSE
@@ -400,7 +400,7 @@ BEGIN
                 owner_username, 
                 likes_count, 
                 caller_liked
-            FROM get_all_projects(username_caller)
+            FROM projects_GetAll(username_caller)
             ORDER BY publish_date ASC NULLS LAST
         ) t;
     END IF;
