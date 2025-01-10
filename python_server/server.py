@@ -106,10 +106,22 @@ class api_SortDesc_req(BaseModel):
     desc: bool
 
 class api_Param_req(BaseModel):
-    projectname: str
-    param1: int
-    param2: int
-    param_array: List[int]
+    projectname : str
+    colors_num : int
+    torus_mode : bool
+    blue_death_conditions : List[int]
+    blue_birth_conditions : List[int]
+    blue_death_conditions_other : List[int]
+    blue_birth_conditions_other : List[int]
+    green_death_conditions : List[int]
+    green_birth_conditions : List[int]
+    green_death_conditions_other : List[int]
+    green_birth_conditions_other : List[int]
+    violet_death_conditions : List[int]
+    violet_birth_conditions : List[int]
+    violet_death_conditions_other : List[int]
+    violet_birth_conditions_other : List[int]
+    grid : List[int]
 
 
 @app.get("/", response_class=HTMLResponse)
@@ -310,9 +322,21 @@ async def api_UpdateParam(request: api_Param_req,
 ):
     result = db_UpdateParam(username=username,
                             project_name=request.projectname,
-                            param1=request.param1,
-                            param2=request.param2,
-                            param_array=request.param_array)
+                            colors_num=request.colors_num,
+                            torus_mode=request.torus_mode,
+                            blue_death_conditions=request.blue_death_conditions,
+                            blue_birth_conditions=request.blue_birth_conditions,
+                            blue_death_conditions_other=request.blue_death_conditions_other,
+                            blue_birth_conditions_other=request.blue_birth_conditions_other,
+                            green_death_conditions=request.green_death_conditions,
+                            green_birth_conditions=request.green_birth_conditions,
+                            green_death_conditions_other=request.green_death_conditions_other,
+                            green_birth_conditions_other=request.green_birth_conditions_other,
+                            violet_death_conditions=request.violet_death_conditions,
+                            violet_birth_conditions=request.violet_birth_conditions,
+                            violet_death_conditions_other=request.violet_death_conditions_other,
+                            violet_birth_conditions_other=request.violet_birth_conditions_other,
+                            grid=request.grid)
     
     if result:
         return {"status": "success",
