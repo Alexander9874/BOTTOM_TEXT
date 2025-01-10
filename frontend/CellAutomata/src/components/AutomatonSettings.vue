@@ -1,7 +1,19 @@
 <template>
   <div class="settings">
     <label for="projectName">Project Name:</label>
-    <input id="projectName" type="text" v-model="projectName" @input="updateProjectName"/>
+    <input id="projectName" type="text" v-model="projectName" @input="updateProjectName" maxlength="30"/>
+
+    <label for="projectDescription">Project Description:</label>
+    <p>{{ projectDescription.slice(0,50) }}...</p>
+    <button @click="openDescriptionModal">Edit Description</button>
+
+    <DescriptionModal
+      :isOpen="isDescriptionModealOpen"
+      :description="projectDescription"
+      @close="closeDescriptionModeal"
+      @updateDescription="updateProjectDescription"
+    />
+
     <button v-if="numcolorMode === 'one'" @click="setnumColor('two')">Change_mode_on_two</button>
     <button v-if="numcolorMode === 'two'" @click="setnumColor('three')">Change_mode_on_three</button>
     <button v-if="numcolorMode === 'three'" @click="setnumColor('one')">Change_mode_on_one</button>
@@ -75,12 +87,17 @@
 </template>
 
 <script>
+
+import DescriptionModal from './DescriptionModal.vue';
+
 export default {
+  components: {DescriptionModal},
   props: {
     numcolorMode: { type: String, Required: 'one'},
     Torusmode: { type: Boolean, Required: false},
     selectedColor: { type: String, default: 'blue' },
-    projectName: {type: String, required: true}
+    projectName: {type: String, required: true},
+    projectDescription: {type: String, default: 'Defauilt description' }
   },
   emits: [
     "updateSettings",
@@ -89,11 +106,14 @@ export default {
     "pauseSimulation",
     "updatenumColors",
     "updateTorusMode",
-    "updateProjectName"
+    "updateProjectName",
+    "updateProjectDescription"
   ],
   data() {
     return {
+      projectDescription: this.projectDescription,
       projectName: this.projectName,
+      isDescriptionModealOpen: false,
       blue: {
         deathConditionsInput: '8',
         birthConditionsInput: '03',
@@ -157,6 +177,16 @@ export default {
     },
     updateProjectName() {
       this.$emit("updateProjectName",this.projectName);
+    },
+    openDescriptionModal() {
+      this.isDescriptionModealOpen = true;
+    },
+    closeDescriptionModeal() {
+      this.isDescriptionModealOpen = false;
+    },
+    updateProjectDescription(newDescription) {
+      this.projectDescription = newDescription;
+      this.$emit("updateProjectDescription",this.projectDescription);
     }
   },
 };
@@ -183,5 +213,15 @@ button {
   background-color: #4caf50;
   color: white;
   cursor: pointer;
+}
+
+textarea{
+  width: 100%;
+  padding: 8px;
+  resize: none;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+  box-sizing: border-box;
 }
 </style>

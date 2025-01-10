@@ -10,6 +10,7 @@
         :selectedColor="selectedColor" @update:selectedColor="updateColor"
         :Torusmode="Torusmode" @updateTorusMode="gridupdate"
         :projectName="projectName" @updateProjectName="handleProjectNameUpdate"
+        :projectDescription="projectDescription" @updateProjectDescription="handleProjectDescriptionUpdate"
       />
     </div>
     <div class="grid-panel">
@@ -38,6 +39,7 @@ export default {
   data() {
     return {
       projectName: "My_New_Project",
+      projectDescription: "Here you can describe your project",
       numcolorMode: 'one',
       Torusmode: false,
       selectedColor: 'blue',
@@ -93,6 +95,9 @@ export default {
     },
     handleProjectNameUpdate(newName) {
       this.projectName = newName;
+    },
+    handleProjectDescriptionUpdate(newDescription){
+      this.projectDescription = newDescription;
     }
   }
 };
