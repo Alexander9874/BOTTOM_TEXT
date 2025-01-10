@@ -30,8 +30,8 @@ BEGIN
     VALUES (v_id_user, p_projectname, p_description)
     RETURNING id_project INTO v_id_project;
 
-    INSERT INTO Params (id_project, param1, param2, grid)
-    VALUES (v_id_project, 1, 1, ARRAY[0, 1, 2, 3, 4]);
+    INSERT INTO Params (id_project)
+    VALUES (v_id_project);
 	-- done
     RETURN 0;
 END;
@@ -456,8 +456,20 @@ BEGIN
     RETURNING id_project INTO v_new_project_id;
 
     -- Копируем параметры проекта
-    INSERT INTO Params (id_project, param1, param2, grid)
-    SELECT v_new_project_id, param1, param2, grid
+    INSERT INTO Params (id_project, colors_num, torus_mode, blue_death_conditions,
+						blue_birth_condittions, blue_death_conditions_other,
+						blue_birth_condittions_other, green_death_conditions,
+						green_birth_condittions, green_death_conditions_other,
+						green_birth_condittions_other, violet_death_conditions,
+						violet_birth_condittions, violet_death_conditions_other,
+						violet_birth_condittions_other, grid)
+    SELECT v_new_project_id, colors_num, torus_mode, blue_death_conditions,
+						blue_birth_condittions, blue_death_conditions_other,
+						blue_birth_condittions_other, green_death_conditions,
+						green_birth_condittions, green_death_conditions_other,
+						green_birth_condittions_other, violet_death_conditions,
+						violet_birth_condittions, violet_death_conditions_other,
+						violet_birth_condittions_other, grid
     FROM Params
     WHERE id_project = v_project_id;
 

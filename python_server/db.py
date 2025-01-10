@@ -269,14 +269,42 @@ def db_GetAllProjectsSortedByDate(username: str,
 
 def db_UpdateParam(username: str,
                    project_name: str,
-                   param1: int,
-                   param2: int,
-                   param_array: List[int]) -> bool:
+                   colors_num : int,
+	               torus_mode: bool,
+	               blue_death_conditions: List[int],
+	               blue_birth_conditions: List[int],
+	               blue_death_conditions_other: List[int],
+	               blue_birth_conditions_other: List[int],
+	               green_death_conditions: List[int],
+	               green_birth_conditions: List[int],
+	               green_death_conditions_other: List[int],
+	               green_birth_conditions_other: List[int],
+	               violet_death_conditions: List[int],
+	               violet_birth_conditions: List[int],
+	               violet_death_conditions_other: List[int],
+	               violet_birth_conditions_other: List[int],
+                   grid: List[int]) -> bool:
     try:
         conn = db_GetConnection()
         cur = conn.cursor()
-        cur.execute("SELECT param_Update(%s, %s, %s, %s, %s)",
-                    (username, project_name, param1, param2, param_array))
+        cur.execute("SELECT param_Update(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+                    (username,
+                     project_name,
+                     colors_num,
+                     torus_mode,
+                     blue_death_conditions,
+                     blue_birth_conditions,
+                     blue_death_conditions_other,
+                     blue_birth_conditions_other,
+                     green_death_conditions,
+                     green_birth_conditions,
+                     green_death_conditions_other,
+                     green_birth_conditions_other,
+                     violet_death_conditions,
+                     violet_birth_conditions,
+                     violet_death_conditions_other,
+                     violet_birth_conditions_other,
+                     grid))
         result = cur.fetchone()[0]
         
         conn.commit()
@@ -361,5 +389,31 @@ def db_SwitchLike(username : str,
     except Exception as e:
         print(f"Error : {e}")
         return False
+
+def db_CleanDeletedProjects():
+    try:
+        conn = db_GetConnection()
+        cur = conn.cursor()
+        cur.execute("CALL project_CleanDeleted()")
+        conn.commit()
+        cur.close()
+        conn.close()
+        return
+    except Exception as e:
+        print(f"Error : {e}")
+        return
+
+def db_CleanRevokedToken():
+    try:
+        conn = db_GetConnection()
+        cur = conn.cursor()
+        cur.execute("DELETE FROM RevokedTokens WHERE revoked_time < NOW() - INTERVAL '2 hours';")
+        conn.commit()
+        cur.close()
+        conn.close()
+        return
+    except Exception as e:
+        print(f"Error : {e}")
+        return
 
 # <| END DATABASE

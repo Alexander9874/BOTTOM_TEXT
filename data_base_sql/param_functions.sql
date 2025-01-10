@@ -18,8 +18,20 @@ BEGIN
         -- Fetch data and build JSON response
         SELECT json_agg(
             json_build_object(
-                'param1', p.param1,
-                'param2', p.param2,
+				'colors_num', p.colors_num,
+				'torus_mode', p.torus_mode,
+				'blue_death_conditions', p.blue_death_conditions,
+				'blue_birth_condittions', p.blue_birth_condittions,
+				'blue_death_conditions_other', p.blue_death_conditions_other,
+				'blue_birth_condittions_other', p.blue_birth_condittions_other,
+				'green_death_conditions', p.green_death_conditions,
+				'green_birth_condittions', p.green_birth_condittions,
+				'green_death_conditions_other', p.green_death_conditions_other,
+				'green_birth_condittions_other', p.green_birth_condittions_other,
+				'violet_death_conditions', p.violet_death_conditions,
+				'violet_birth_condittions', p.violet_birth_condittions,
+				'violet_death_conditions_other', p.violet_death_conditions_other,
+				'violet_birth_condittions_other', p.violet_birth_condittions_other,
                 'grid', p.grid
             )
         )
@@ -43,8 +55,20 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION param_Update(
     p_username VARCHAR(31),
     p_projectname VARCHAR(31),
-    p_param1 INT,
-    p_param2 INT,
+	p_colors_num INT,
+	p_torus_mode BOOLEAN,
+	p_blue_death_conditions INT[],
+	p_blue_birth_condittions INT[],
+	p_blue_death_conditions_other INT[],
+	p_blue_birth_condittions_other INT[],
+	p_green_death_conditions INT[],
+	p_green_birth_condittions INT[],
+	p_green_death_conditions_other INT[],
+	p_green_birth_condittions_other INT[],
+	p_violet_death_conditions INT[],
+	p_violet_birth_condittions INT[],
+	p_violet_death_conditions_other INT[],
+	p_violet_birth_condittions_other INT[],
     p_grid INT[]
 )
 RETURNS INT AS $$
@@ -68,9 +92,21 @@ BEGIN
 
     -- Обновляем параметры проекта в таблице Params
     UPDATE Params
-    SET param1 = p_param1,
-        param2 = p_param2,
-        grid = p_grid
+    SET colors_num = p_colors_num,
+		torus_mode = p_torus_mode,
+		blue_death_conditions = p_blue_death_conditions,
+		blue_birth_condittions = p_blue_birth_condittions ,
+		blue_death_conditions_other = p_blue_death_conditions_other,
+		blue_birth_condittions_other = p_blue_birth_condittions_other,
+		green_death_conditions = p_green_death_conditions,
+		green_birth_condittions = p_green_birth_condittions,
+		green_death_conditions_other = p_green_death_conditions_other,
+		green_birth_condittions_other = p_green_birth_condittions_other,
+		violet_death_conditions = p_violet_death_conditions,
+		violet_birth_condittions = p_violet_birth_condittions,
+		violet_death_conditions_other = p_violet_death_conditions_other,
+		violet_birth_condittions_other = p_violet_birth_condittions_other,
+		grid = p_grid
     WHERE id_project = v_id_project;
 
     -- Если обновление выполнено успешно, возвращаем 0
