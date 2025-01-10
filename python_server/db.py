@@ -390,4 +390,30 @@ def db_SwitchLike(username : str,
         print(f"Error : {e}")
         return False
 
+def db_CleanDeletedProjects():
+    try:
+        conn = db_GetConnection()
+        cur = conn.cursor()
+        cur.execute("CALL project_CleanDeleted()")
+        conn.commit()
+        cur.close()
+        conn.close()
+        return
+    except Exception as e:
+        print(f"Error : {e}")
+        return
+
+def db_CleanRevokedToken():
+    try:
+        conn = db_GetConnection()
+        cur = conn.cursor()
+        cur.execute("DELETE FROM RevokedTokens WHERE revoked_time < NOW() - INTERVAL '2 hours';")
+        conn.commit()
+        cur.close()
+        conn.close()
+        return
+    except Exception as e:
+        print(f"Error : {e}")
+        return
+
 # <| END DATABASE

@@ -4,6 +4,8 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from fastapi import Security
 from pydantic import BaseModel
 from typing import List
+from apscheduler.schedulers.background import BackgroundScheduler
+from contextlib import asynccontextmanager
 
 
 from db import *
@@ -72,9 +74,6 @@ def jwt_GetUsername(credentials: HTTPAuthorizationCredentials = Security(securit
 
 # API |>
 
-app = FastAPI()
-
-
 class api_UserPassword_req (BaseModel):
     username: str
     password: str
@@ -122,6 +121,23 @@ class api_Param_req(BaseModel):
     violet_death_conditions_other : List[int]
     violet_birth_conditions_other : List[int]
     grid : List[int]
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    scheduler = BackgroundScheduler()
+    scheduler.add_job(db_CleanDeletedProjects, 'interval', hours=1) # 24 h mb
+    scheduler.add_job(db_CleanRevokedToken, 'interval', minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    scheduler.start()
+    
+    print("Scheduler started.")
+    try:
+        yield
+    finally:
+        scheduler.shutdown(wait=False)
+        print("Scheduler stopped.")
+
+
+app = FastAPI(lifespan=lifespan)
 
 
 @app.get("/", response_class=HTMLResponse)
