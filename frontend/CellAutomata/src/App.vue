@@ -2,12 +2,10 @@
 <template>
   <div id="app">
      <AutomatonPage /> 
-     <UserProfile />
   </div>
 </template>
 
 <script>
-import UserProfile from './components/UserProfile.vue';
 import AutomatonPage from './views/AutomatonPage.vue';
 
 export default {

@@ -1,5 +1,7 @@
 <template>
   <div class="settings">
+    <label for="projectName">Project Name:</label>
+    <input id="projectName" type="text" v-model="projectName" @input="updateProjectName"/>
     <button v-if="numcolorMode === 'one'" @click="setnumColor('two')">Change_mode_on_two</button>
     <button v-if="numcolorMode === 'two'" @click="setnumColor('three')">Change_mode_on_three</button>
     <button v-if="numcolorMode === 'three'" @click="setnumColor('one')">Change_mode_on_one</button>
@@ -78,9 +80,20 @@ export default {
     numcolorMode: { type: String, Required: 'one'},
     Torusmode: { type: Boolean, Required: false},
     selectedColor: { type: String, default: 'blue' },
+    projectName: {type: String, required: true}
   },
+  emits: [
+    "updateSettings",
+    "runSimulation",
+    "resetSimulation",
+    "pauseSimulation",
+    "updatenumColors",
+    "updateTorusMode",
+    "updateProjectName"
+  ],
   data() {
     return {
+      projectName: this.projectName,
       blue: {
         deathConditionsInput: '8',
         birthConditionsInput: '03',
@@ -141,6 +154,9 @@ export default {
     },
     setnumColor(numColors) {
       this.$emit('updatenumColors',numColors);
+    },
+    updateProjectName() {
+      this.$emit("updateProjectName",this.projectName);
     }
   },
 };
