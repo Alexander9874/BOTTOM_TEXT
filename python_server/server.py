@@ -98,13 +98,6 @@ class api_NewProjectname_req (BaseModel):
     projectname : str
     new_projectname: str
 
-class api_Username_req(BaseModel):
-    username: str
-
-class api_SortDesc_req(BaseModel):
-    sort_by: str    # DATE or LIKE
-    desc: bool
-
 class api_Param_req(BaseModel):
     projectname : str
     colors_num : int
@@ -211,7 +204,6 @@ async def api_UpdateAboutMe(request: api_AboutMe_req,
                             detail="Failed to update profile")
 
 
-
 @app.get("/GetUserInfo")
 async def api_GetUserInfo(username: str = Depends(jwt_GetUsername)):
     try:
@@ -226,7 +218,6 @@ async def api_GetUserInfo(username: str = Depends(jwt_GetUsername)):
     except Exception as e:
         raise HTTPException(status_code=500,
                             detail=f"Internal server error: {e}")
-
 
 
 @app.post("/CreateProject")
@@ -298,51 +289,46 @@ async def api_CopyProject(request: api_NewProjectname_req,
     
 
 @app.get("/GetProjectsByUser")
-async def api_GetProjectsByUser(request: api_Username_req,
-                                username: str = Depends(jwt_GetUsername)):
+async def api_GetProjectsByUser(username: str,
+                                username_caller: str = Depends(jwt_GetUsername)):
     try:
-        result = db_GetProjectsByUser(request.username,
-                                      username)
-        
-        if not result:
-            raise HTTPException(status_code=404,
-                                detail="No projects found")
-        
-        return {"status": "success",
-                "data": result}
+        result = db_GetProjectsByUser(username, username_caller)
     except Exception as e:
+        print("Error occurred during database query")
         raise HTTPException(status_code=500,
                             detail=f"Internal server error: {e}")
+
+    if not result:
+        raise HTTPException(status_code=404,
+                            detail="No projects found")
+        
+    return {"status": "success",
+            "data": result}
 
 
 @app.get("/GetAllProjects")
-async def api_GetAllProjects(request: api_SortDesc_req,
+async def api_GetAllProjects(sort_by: str,
+                             desc: bool,
                              username: str = Depends(jwt_GetUsername)):
-    if request.sort_by == "DATE":
+    # Проверка параметра sort_by
+    if sort_by.upper() == "DATE":
         sort_by_date = True
-    elif request.sort_by == "LIKE":
+    elif sort_by.upper() == "LIKE":
         sort_by_date = False
     else:
-        raise HTTPException(status_code=400,
-                            detail="Bad Request")
+        raise HTTPException(status_code=400, detail="Invalid sort_by parameter. Use 'DATE' or 'LIKE'.")
 
     try:
         if sort_by_date:
-            result = db_GetAllProjectsSortedByDate(username,
-                                                   request.desc)
+            result = db_GetAllProjectsSortedByDate(username, desc)
         else:
-            result = db_GetAllProjectsSortedByLikes(username,
-                                                    request.desc)
-        
-        if not result:
-            raise HTTPException(status_code=404,
-                                detail="No projects found")
-        
-        return {"status": "success",
-                "data": result}
+            result = db_GetAllProjectsSortedByLikes(username, desc)
     except Exception as e:
-        raise HTTPException(status_code=500,
-                            detail=f"Internal server error: {e}")
+        raise HTTPException(status_code=500, detail=f"Internal server error: {e}")
+    if not result:
+        raise HTTPException(status_code=404, detail="No projects found")
+    
+    return {"status": "success", "data": result}
 
 
 @app.post("/UpdateParam")
@@ -376,21 +362,17 @@ async def api_UpdateParam(request: api_Param_req,
 
 
 @app.get("/GetParam")
-async def api_GetParam(request: api_Projectname_req,
-                       username: str = Depends(jwt_GetUsername)):
+async def api_GetParam(projectname: str,
+                       username: str = Depends(jwt_GetUsername),):
     try:
-        result = db_GetParam(username,
-                             request.projectname)
-
-        if not result:
-            raise HTTPException(status_code=404,
-                                detail="No projects found")
-        
-        return {"status": "success",
-                "data": result}
+        # Вызов функции базы данных
+        result = db_GetParam(username, projectname)
     except Exception as e:
-        raise HTTPException(status_code=500,
-                            detail=f"Internal server error: {e}")
+        raise HTTPException(status_code=500, detail=f"Internal server error: {e}")
+    
+    if not result:
+        raise HTTPException(status_code=404, detail="No projects found")
+    return {"status": "success", "data": result}
 
 
 @app.post("/PutLike")
