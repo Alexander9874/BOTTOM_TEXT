@@ -113,19 +113,12 @@ import axios from 'axios';
             return;
         }
 
-        const requestData = {
-            username: this.user.name,
-        };
-
         // Логируем заголовки и данные запроса
         const headers = {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
         };
 
-        console.log("Sending request with headers:", headers);
-        console.log("Sending request with data:", requestData);
-        console.log("Sending JSON:", JSON.stringify(requestData));
         try {
           const response = await axios.get("http://127.0.0.1:8000/GetProjectsByUser", {
             headers: headers,
@@ -133,8 +126,8 @@ import axios from 'axios';
           });
           if (response.data.status === "success") {
             this.projects = response.data.data.map(project => ({
-              name: project.projectName,
-              description: projectDescription,
+              name: project.projectname,
+              description: project.description,
             }));
           } else {
             console.error("Failed to fetch projects: ", response.data)
@@ -269,7 +262,6 @@ import axios from 'axios';
   <style scoped>
   
   
-  /* General Layout */
   .homepage {
     display: flex;
     height: 100vh;
@@ -278,7 +270,6 @@ import axios from 'axios';
     font-family: Arial, sans-serif;
   }
   
-  /* Sidebar (Left 1/3 of screen) */
   .sidebar {
     width: 33%;
     display: flex;
@@ -287,7 +278,6 @@ import axios from 'axios';
     border-right: 1px solid #333;
   }
   
-  /* Community Section */
   .community-section {
     height: 20%;
     display: flex;
@@ -312,7 +302,6 @@ import axios from 'axios';
     padding: 10px 15px;
   }
 
-  /* Projects Section */
   .projects-section {
     height: 80%;
     padding: 10px;
@@ -334,6 +323,8 @@ import axios from 'axios';
   .projects-list {
     flex-grow: 1;
     overflow-y: auto;
+    margin-top: 20px;
+    max-height: 800px;
     scrollbar-width: thin;
     scrollbar-color: #555 #1e1e1e;
   }
@@ -346,6 +337,29 @@ import axios from 'axios';
     background: #555;
     border-radius: 4px;
   }
+  .project-item {
+  background: #2e2e2e;
+  padding: 15px;
+  margin: 10px 0;
+  border-radius: 6px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.project-item span {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.project-item button {
+  background: #007bff;
+  color: white;
+  padding: 10px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
   
   .empty-list {
     color: #999;
