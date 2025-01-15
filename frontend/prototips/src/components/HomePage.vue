@@ -31,11 +31,12 @@
           <h1>Welcome,</h1>
           <h2>{{ user.name }}</h2>
           <div class="about-me">
-            <p v-if="!isEditingAbout">{{ user.about }}</p>
+            <p v-if="!isEditingAbout">{{ user.about.slice(0,20)}}...</p>
             <textarea
               v-if="isEditingAbout"
               v-model="user.about"
               placeholder="About me"
+              maxlength="254"
             ></textarea>
             <button @click="toggleEditAbout" class="btn-edit">
               {{ isEditingAbout ? "Save" : "Edit" }}
@@ -269,6 +270,7 @@ import axios from 'axios';
     justify-content: center;
     text-align: center;
     padding: 20px;
+    border: 5px solid #000b70;
   }
   
   .header {
@@ -288,7 +290,10 @@ import axios from 'axios';
   }
   
   .user-details {
+    border: 5px solid #004268;
     max-width: 600px;
+    padding: 40px;
+    border-radius: 30px;
   }
   
   .user-details h1 {

@@ -21,55 +21,55 @@
     <h3 v-if="numcolorMode === 'two' || numcolorMode === 'three'">Blue Settings</h3>
     <label>
       Death Conditions:
-      <input type="text" v-model="blue.deathConditionsInput" placeholder="e.g., 0123" />
+      <input type="text" v-model="blue.deathConditionsInput" placeholder="e.g., 0123" maxlength="50"/>
     </label>
     <label>
       Birth Conditions:
-      <input type="text" v-model="blue.birthConditionsInput" placeholder="e.g., 0123" />
+      <input type="text" v-model="blue.birthConditionsInput" placeholder="e.g., 0123" maxlength="50"/>
     </label>
     <label v-if="numcolorMode === 'two' || numcolorMode === 'three'">
       Death Conditions (Other):
-      <input type="text" v-model="blue.deathConditionsOtherInput" placeholder="e.g., 0123" />
+      <input type="text" v-model="blue.deathConditionsOtherInput" placeholder="e.g., 0123" maxlength="50"/>
     </label>
     <label v-if="numcolorMode === 'two' || numcolorMode === 'three'">
       Birth Conditions (Other):
-      <input type="text" v-model="blue.birthConditionsOtherInput" placeholder="e.g., 0123" />
+      <input type="text" v-model="blue.birthConditionsOtherInput" placeholder="e.g., 0123" maxlength="50"/>
     </label>
 
     <h3 v-if="numcolorMode === 'two' || numcolorMode === 'three'" >Green Settings</h3>
     <label v-if="numcolorMode === 'two' || numcolorMode === 'three'" >
       Death Conditions:
-      <input type="text" v-model="green.deathConditionsInput" placeholder="e.g., 0123" />
+      <input type="text" v-model="green.deathConditionsInput" placeholder="e.g., 0123" maxlength="50"/>
     </label >
     <label v-if="numcolorMode === 'two' || numcolorMode === 'three'">
       Birth Conditions:
-      <input type="text" v-model="green.birthConditionsInput" placeholder="e.g., 0123" />
+      <input type="text" v-model="green.birthConditionsInput" placeholder="e.g., 0123" maxlength="50"/>
     </label>
     <label v-if="numcolorMode === 'two' || numcolorMode === 'three' ">
       Death Conditions (Other):
-      <input type="text" v-model="green.deathConditionsOtherInput" placeholder="e.g., 0123" />
+      <input type="text" v-model="green.deathConditionsOtherInput" placeholder="e.g., 0123" maxlength="50"/>
     </label>
     <label v-if="numcolorMode === 'two' || numcolorMode === 'three'">
       Birth Conditions (Other):
-      <input type="text" v-model="green.birthConditionsOtherInput" placeholder="e.g., 0123" />
+      <input type="text" v-model="green.birthConditionsOtherInput" placeholder="e.g., 0123" maxlength="50"/>
     </label>
 
     <h3 v-if=" numcolorMode === 'three'" >Violet Settings</h3>
     <label v-if="numcolorMode === 'three'" >
       Death Conditions:
-      <input type="text" v-model="violet.deathConditionsInput" placeholder="e.g., 0123" />
+      <input type="text" v-model="violet.deathConditionsInput" placeholder="e.g., 0123" maxlength="50"/>
     </label >
     <label v-if=" numcolorMode === 'three'">
       Birth Conditions:
-      <input type="text" v-model="violet.birthConditionsInput" placeholder="e.g., 0123" />
+      <input type="text" v-model="violet.birthConditionsInput" placeholder="e.g., 0123" maxlength="50"/>
     </label>
     <label v-if=" numcolorMode === 'three' ">
       Death Conditions (Other):
-      <input type="text" v-model="violet.deathConditionsOtherInput" placeholder="e.g., 0123" />
+      <input type="text" v-model="violet.deathConditionsOtherInput" placeholder="e.g., 0123" maxlength="50"/>
     </label>
     <label v-if="numcolorMode === 'three'">
       Birth Conditions (Other):
-      <input type="text" v-model="violet.birthConditionsOtherInput" placeholder="e.g., 0123" />
+      <input type="text" v-model="violet.birthConditionsOtherInput" placeholder="e.g., 0123" maxlength="50"/>
     </label>
 
     <button @click="applySettings">Apply Settings</button>

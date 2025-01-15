@@ -17,12 +17,14 @@
               placeholder="Username" 
               v-model="username" 
               class="input-field" 
+              maxlength="30"
             />
             <input 
               type="password" 
               placeholder="Password" 
               v-model="password" 
               class="input-field" 
+              maxlength="127"
             />
   
             <!-- Кнопки Log In и Sign Up -->
@@ -55,6 +57,14 @@ import { errorMessages } from "vue/compiler-sfc";
     },
     methods: {
       async login() {
+        if (this.username.length < 2) {
+          alert("Name must be at least 2 characters long")
+          return;
+        }
+        if (this.password.length < 2) {
+          alert("Password must be at least 2 characters long")
+          return;
+        }
         try {
           const response = await axios.post("http://127.0.0.1:8000/login",{
             username: this.username,
@@ -75,6 +85,14 @@ import { errorMessages } from "vue/compiler-sfc";
         // Логика для входа
       },
       async signup() {
+        if (this.username.length < 2) {
+          alert("Name must be at least 2 characters long")
+          return;
+        }
+        if (this.password.length < 2) {
+          alert("Password must be at least 2 characters long")
+          return;
+        }
         try {
           const response = await axios.post("http://127.0.0.1:8000/signup",{
             username: this.username,
@@ -144,7 +162,7 @@ import { errorMessages } from "vue/compiler-sfc";
     background-color: rgba(34, 34, 34, 0.9); /* Полупрозрачный */
     padding: 40px;
     border-radius: 8px;
-    width: 500px;
+    width: 600px;
     text-align: center;
   }
   
@@ -156,11 +174,13 @@ import { errorMessages } from "vue/compiler-sfc";
   
   /* Поля ввода */
   .input-field {
+    font-size: 25px;
     width: 100%;
     padding: 12px;
     margin-bottom: 20px;
     border: 1px solid #ccc;
     border-radius: 4px;
+    color: aqua;
     background-color: rgba(255, 255, 255, 0.1); /* Мутные поля */
   }
   
@@ -178,6 +198,7 @@ import { errorMessages } from "vue/compiler-sfc";
     border-radius: 4px;
     color: white;
     cursor: pointer;
+    font-size: 18px;
   }
   
   .btn-login {

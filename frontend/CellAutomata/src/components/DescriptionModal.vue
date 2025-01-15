@@ -65,7 +65,7 @@
   }
   
   .modal {
-    background: white;
+    background: rgb(11, 28, 107);
     padding: 20px;
     border-radius: 5px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -83,9 +83,15 @@
     width: 100%;
     padding: 8px;
     resize: none;
-    border: 1px solid #ccc;
+    border: 1px solid #6b6b6b;
     border-radius: 4px;
     font-size: 14px;
     box-sizing: border-box;
   }
+
+  button{
+    width: 40%;
+    padding: 4px;
+  }
+
   </style>
