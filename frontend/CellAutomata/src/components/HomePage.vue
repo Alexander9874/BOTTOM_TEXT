@@ -106,15 +106,47 @@ import axios from 'axios';
         
       },
       async fetchProjects() {
-        try {
-          const response = await fetch("/api/projects");
-          if (!response.ok) {
-            throw new Error("Failed to load projects");
-          }
-          this.projects = await response.json();
-        } catch (error) {
-          console.error("Error fetching projects:", error);
+        const token = localStorage.getItem("token");
+        if (!token) {
+            console.error("No token found");
+            this.$router.push("/");
+            return;
         }
+
+        const requestData = {
+            username: this.user.name,
+        };
+
+        // Логируем заголовки и данные запроса
+        const headers = {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+        };
+
+        console.log("Sending request with headers:", headers);
+        console.log("Sending request with data:", requestData);
+        console.log("Sending JSON:", JSON.stringify(requestData));
+        try {
+          const response = await axios.get("http://127.0.0.1:8000/GetProjectsByUser", {
+            headers: headers,
+            params: {username: this.user.name},
+          });
+          if (response.data.status === "success") {
+            this.projects = response.data.data.map(project => ({
+              name: project.projectName,
+              description: projectDescription,
+            }));
+          } else {
+            console.error("Failed to fetch projects: ", response.data)
+          }
+        } catch(error) {
+          if (error.response) {
+            console.error("Server error: ",error.response.data);
+          } else {
+            console.error("Request error: ",error);
+          }
+        }
+       
       },
       async createNewProject() {
         // Проверка на минимальную длину полей
@@ -229,6 +261,7 @@ import axios from 'axios';
     },
     async created() {
       await this.fetchUserInfo();
+      await this.fetchProjects();
     },
   };
   </script>
