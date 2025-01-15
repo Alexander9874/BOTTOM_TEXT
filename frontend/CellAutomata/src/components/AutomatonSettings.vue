@@ -83,11 +83,13 @@
     <button @click="setColor('dead')">Eraseer</button>
     <button v-if="Torusmode == false" @click="setGridMode(true)">Torus mode on</button>
     <button v-if="Torusmode == true" @click="setGridMode(false)">Torus mode off</button>
+    <button @click="exit()">Exit</button>
   </div>
 </template>
 
 <script>
 
+import { extractIdentifiers } from 'vue/compiler-sfc';
 import DescriptionModal from './DescriptionModal.vue';
 
 export default {
@@ -187,6 +189,9 @@ export default {
     updateProjectDescription(newDescription) {
       this.projectDescription = newDescription;
       this.$emit("updateProjectDescription",this.projectDescription);
+    },
+    exit() {
+      this.$router.push('/home');
     }
   },
 };

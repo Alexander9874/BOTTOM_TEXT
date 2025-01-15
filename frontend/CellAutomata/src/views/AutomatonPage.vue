@@ -36,10 +36,9 @@ export default {
     AutomatonSettings,
     CellAutomaton
   },
+  props: ['projectName','projectDescription'],
   data() {
     return {
-      projectName: "My_New_Project",
-      projectDescription: "Here you can describe your project",
       numcolorMode: 'one',
       Torusmode: false,
       selectedColor: 'blue',

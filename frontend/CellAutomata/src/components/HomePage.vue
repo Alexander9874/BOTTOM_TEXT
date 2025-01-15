@@ -1,16 +1,14 @@
 <template>
-  <div class="homepage">
-    <!-- Sidebar -->
-    <aside class="sidebar">
-      <!-- Top Section with Community Button -->
-      <div class="community-section">
-        <button @click="goToCommunity" class="btn-community">Community</button>
-      </div>
-
-      <!-- Projects Section -->
-      <div class="projects-section">
-        <!-- Input Fields for Project Name and Description -->
-        <div class="project-inputs">
+    <div class="homepage">
+      <!-- Sidebar -->
+      <aside class="sidebar">
+        <!-- Top Section with Community Button -->
+        <div class="community-section">
+          <button @click="goToCommunity" class="btn-community">Community</button>
+        </div>
+  
+        <!-- Projects Section -->
+        <div class="projects-section">
           <input
             type="text"
             v-model="newProjectName"
@@ -22,52 +20,45 @@
             placeholder="Project Description"
             class="textarea-project"
           ></textarea>
+          <button @click="createNewProject" class="btn-new-project">Create New Project</button>
+          <div class="projects-list">
+            <ul>
+              <li v-if="projects.length === 0" class="empty-list">No projects found</li>
+              <li v-for="project in projects" :key="project.id" class="project-item">
+                <span>{{ project.name }}</span>
+                <button @click="openProject(project.id)">Open</button>
+              </li>
+            </ul>
+          </div>
         </div>
-        <button @click="createNewProject" class="btn-new-project">
-          Create New Project
-        </button>
-        <div class="projects-list">
-          <ul>
-            <li v-if="projects.length === 0" class="empty-list">No projects found</li>
-            <li
-              v-for="project in projects"
-              :key="project.id"
-              class="project-item"
-            >
-              <span>{{ project.name }}</span>
-              <button @click="openProject(project.id)">Open</button>
-            </li>
-          </ul>
+      </aside>
+  
+      <!-- Main Content -->
+      <main class="user-info">
+        <header class="header">
+          <button @click="logout" class="btn-logout">Log Out</button>
+        </header>
+        <div class="user-details">
+          <h1>Welcome,</h1>
+          <h2>{{ user.name }}</h2>
+          <div class="about-me">
+            <p v-if="!isEditingAbout">{{ user.about.slice(0,20)}}...</p>
+            <textarea
+              v-if="isEditingAbout"
+              v-model="user.about"
+              placeholder="About me"
+              maxlength="254"
+            ></textarea>
+            <button @click="toggleEditAbout" class="btn-edit">
+              {{ isEditingAbout ? "Save" : "Edit" }}
+            </button>
+          </div>
         </div>
-      </div>
-    </aside>
-
-    <!-- Main Content -->
-    <main class="user-info">
-      <header class="header">
-        <button @click="logout" class="btn-logout">Log Out</button>
-      </header>
-      <div class="user-details">
-        <h1>Welcome,</h1>
-        <h2>{{ user.name }}</h2>
-        <div class="about-me">
-          <p v-if="!isEditingAbout">{{ user.about.slice(0, 20) }}...</p>
-          <textarea
-            v-if="isEditingAbout"
-            v-model="user.about"
-            placeholder="About me"
-            maxlength="254"
-          ></textarea>
-          <button @click="toggleEditAbout" class="btn-edit">
-            {{ isEditingAbout ? "Save" : "Edit" }}
-          </button>
-        </div>
-      </div>
-    </main>
-  </div>
-</template>
-
-<script>
+      </main>
+    </div>
+  </template>
+  
+  <script>
 import { toHandlers } from 'vue';
 import axios from 'axios';
   export default {
@@ -80,8 +71,8 @@ import axios from 'axios';
         },
         projects: [],
         isEditingAbout: false,
-        newProjectName: "new_project_name",
-        newProjectDescription: "new_project_Decription",
+        newProjectName: "NEW_project_name",
+        newProjectDescription: "NEW_project_description",
       };
     },
     methods: {
@@ -125,7 +116,6 @@ import axios from 'axios';
           console.error("Error fetching projects:", error);
         }
       },
-     
       async createNewProject() {
         // Проверка на минимальную длину полей
         if (this.newProjectName.trim().length < 2 || this.newProjectDescription.trim().length < 2) {
@@ -139,6 +129,7 @@ import axios from 'axios';
           this.$router.push("/");
           return;
         }
+
         try {
           const response = await axios.post(
             "http://127.0.0.1:8000/CreateProject",
@@ -156,9 +147,13 @@ import axios from 'axios';
 
           if (response.data.status === "success") {
             alert("Project created successfully!");
-            this.newProjectName = ""; // Очищаем поля
-            this.newProjectDescription = "";
-            this.$router.push("/Model"); // Переход на страницу модели
+            this.$router.push({
+              name: 'AutoPage',
+              params: {
+                projectName: this.newProjectName,
+                projectDescription: this.newProjectDescription,
+              }
+            }); 
           } else {
             throw new Error(response.data.message || "Failed to create project");
           }
@@ -168,6 +163,7 @@ import axios from 'axios';
         }
       },
 
+     
       openProject(projectId) {
         this.$router.push('/projects/${projectId}');
       },
@@ -386,24 +382,24 @@ import axios from 'axios';
     font-size: 1.5rem;
   }
   .project-inputs {
-    margin-bottom: 10px;
-  }
+  margin-bottom: 10px;
+}
 
-  .input-project,
-  .textarea-project {
-    width: 100%;
-    margin-bottom: 10px;
-    padding: 10px;
-    border-radius: 4px;
-    border: 1px solid #444;
-    background: #2e2e2e;
-    color: white;
-    font-size: 1rem;
-  }
+.input-project,
+.textarea-project {
+  width: 100%;
+  margin-bottom: 10px;
+  padding: 10px;
+  border-radius: 4px;
+  border: 1px solid #444;
+  background: #2e2e2e;
+  color: white;
+  font-size: 1rem;
+}
 
-  .textarea-project {
-    resize: none;
-    height: 80px;
-  }
-
+.textarea-project {
+  resize: none;
+  height: 80px;
+}
+  
   </style>
