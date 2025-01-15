@@ -35,9 +35,21 @@ CREATE TABLE Params (
     id_params SERIAL PRIMARY KEY,
     id_project INT NOT NULL UNIQUE,
     FOREIGN KEY (id_project) REFERENCES Projects (id_project),
-    param1 INT NOT NULL,
-    param2 INT NOT NULL,
-    grid INT[]
+	colors_num INT NOT NULL DEFAULT 1,
+	torus_mode BOOLEAN NOT NULL DEFAULT (false),
+	blue_death_conditions INT[] NOT NULL DEFAULT '{8}',
+	blue_birth_condittions INT[] NOT NULL DEFAULT '{0, 3}',
+	blue_death_conditions_other INT[] DEFAULT '{7}',
+	blue_birth_condittions_other INT[] DEFAULT '{6}',
+	green_death_conditions INT[] DEFAULT '{8}',
+	green_birth_condittions INT[] DEFAULT '{3}',
+	green_death_conditions_other INT[] DEFAULT '{7}',
+	green_birth_condittions_other INT[] DEFAULT '{6}',
+	violet_death_conditions INT[] DEFAULT '{8}',
+	violet_birth_condittions INT[] DEFAULT '{4}',
+	violet_death_conditions_other INT[] DEFAULT '{6}',
+	violet_birth_condittions_other INT[] DEFAULT '{5}',
+    grid INT[] NOT NULL DEFAULT '{0, 0, 0}'
 );
 
 CREATE TABLE RevokedTokens (

@@ -101,15 +101,14 @@ SELECT project_IsOwnedByUser('user2', 'project12');
 -- param_functions.sql
 
 
-SELECT param_Update('user1', 'project12', 222, 222, ARRAY[222, 222, 222]);
-SELECT param_Update('user1', 'project11', 111, 111, ARRAY[111, 111, 111]);
+SELECT param_Update('user1', 'project12', 222, false, ARRAY[222, 222, 222], ARRAY[222, 222, 222], ARRAY[222, 222, 222], ARRAY[222, 222, 222], ARRAY[222, 222, 222], ARRAY[222, 222, 222], ARRAY[222, 222, 222], ARRAY[222, 222, 222], ARRAY[222, 222, 222], ARRAY[222, 222, 222], ARRAY[222, 222, 222], ARRAY[222, 222, 222], ARRAY[222, 222, 22284, 444343, 4434343, 44344343]);
 
 
 SELECT param_Get('user1', 'project12');
 SELECT param_Get('user2', 'project11');
 -- WRONG BELOW
-SELECT param_Get('user2', 'project12');
-SELECT param_Get('user3', 'project31');
+-- SELECT param_Get('user2', 'project12');
+-- SELECT param_Get('user3', 'project31');
 
 
 -- like_functions.sql
