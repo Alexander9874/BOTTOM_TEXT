@@ -53,11 +53,15 @@
      };
    },
    methods: {
+    updateParentState() {
+      this.$emit('update:cells',this.cells);
+    },
      createEmptyGrid() {
        return Array.from({ length: this.rows }, () => Array(this.cols).fill('dead'));
      },
     toggleCell(row, col) {
       this.cells[row][col] = this.selectedColor;
+      this.updateParentState();
     },
      countNeighborsForLiveCell(row, col, cellColor) {
      const directions = [
@@ -176,6 +180,7 @@
          })
        );
        this.cells = newCells;
+       this.updateParentState();
      },
 
 
@@ -224,6 +229,7 @@
           })
         );
         this.cells = newCells;
+        this.updateParentState();
       },
       onestartSimulation() {
         if (!this.interval) {
@@ -245,6 +251,7 @@
      resetGrid() {
        this.stopSimulation();
        this.cells = this.createEmptyGrid();
+       this.updateParentState();
      },
      pauseSim() {
        this.stopSimulation();
@@ -271,6 +278,10 @@
    border: 1px solid #383838;
    box-sizing: border-box;
  }
+
+ .dead {
+   background-color: #000000;
+ }
  
  .blue {
    background-color: rgb(0, 0, 255);
@@ -283,9 +294,6 @@
   background-color: rgb(148, 87, 209);
  }
  
- .dead {
-   background-color: #000000;
- }
 
  .void {
   background-color: red;

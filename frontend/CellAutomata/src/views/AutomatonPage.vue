@@ -6,6 +6,7 @@
         @run-simulation="runSimulation"
         @reset-simulation="resetSimulation"
         @pause-simulation="pauseSimulation"
+        @send-update-request="sendUpdateRequest"
         :numcolorMode="numcolorMode" @updatenumColors="toggleMode"
         :selectedColor="selectedColor" @update:selectedColor="updateColor"
         :Torusmode="Torusmode" @updateTorusMode="gridupdate"
@@ -21,6 +22,7 @@
         :selectedColor="selectedColor"
         :Torusmode="Torusmode"
         :numcolorMode="numcolorMode"
+        @update:cells="updateCells"
         ref="automaton"
       />
     </div>
@@ -28,6 +30,7 @@
 </template>
 
 <script>
+import axios from 'axios';
 import AutomatonSettings from '../components/AutomatonSettings.vue';
 import CellAutomaton from '../components/CellAutomaton.vue';
 
@@ -39,6 +42,7 @@ export default {
   props: ['projectName','projectDescription'],
   data() {
     return {
+      cells: [],
       numcolorMode: 'one',
       Torusmode: false,
       selectedColor: 'blue',
@@ -92,6 +96,60 @@ export default {
     gridupdate(gridmode) {
       this.Torusmode = gridmode;
     },
+    updateCells(newCells) {
+      this.cells = newCells;
+    },
+    async sendUpdateRequest() {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        alert("No token found");
+        return;
+      }
+      try {
+        const colorsNumMapping = {one: 0,two: 1,three: 2};
+        const cellTypeMapping = {dead: 0, blue: 1,green: 2,violet: 4,void: 4};
+
+        const grid = this.cells.map(row => row.map(cell => cellTypeMapping[cell] || 0));
+        const payload = {
+          projectname: this.projectName,
+          colors_num: colorsNumMapping[this.numcolorMode] || 0,
+          torus_mode: this.Torusmode,
+          blue_death_conditions: Array.from(this.settings.blue.deathConditions),
+          blue_birth_conditions: Array.from(this.settings.blue.birthConditions),
+          blue_death_conditions_other: Array.from(this.settings.blue.deathConditionsOther),
+          blue_birth_conditions_other: Array.from(this.settings.blue.birthConditionsOther),
+
+          green_death_conditions: Array.from(this.settings.green.deathConditions),
+          green_birth_conditions: Array.from(this.settings.green.birthConditions),
+          green_death_conditions_other: Array.from(this.settings.green.deathConditionsOther),
+          green_birth_conditions_other: Array.from(this.settings.green.birthConditionsOther),
+
+          violet_death_conditions: Array.from(this.settings.violet.deathConditions),
+          violet_birth_conditions: Array.from(this.settings.violet.birthConditions),
+          violet_death_conditions_other: Array.from(this.settings.violet.deathConditionsOther),
+          violet_birth_conditions_other: Array.from(this.settings.violet.birthConditionsOther),
+          grid:  grid.flat(),
+        };
+        console.log("Payload: ",JSON.stringify(payload,null,2));
+        const response = await axios.post("http://127.0.0.1:8000/UpdateParam",
+            payload,
+          {
+          headers: {
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (response.status === 200) {
+          alert("Data saved");
+        } else {
+          alert("Error data was not saved");
+        }
+      } catch(error) {
+        console.error("Error sending request:  ",error);
+        alert("Sending error");
+      }
+    }
   }
 };
 </script>

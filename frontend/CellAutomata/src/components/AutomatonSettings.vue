@@ -83,6 +83,7 @@
     <button @click="setColor('dead')">Eraseer</button>
     <button v-if="Torusmode == false" @click="setGridMode(true)">Torus mode on</button>
     <button v-if="Torusmode == true" @click="setGridMode(false)">Torus mode off</button>
+    <button @click="$emit('send-update-request')">Save project</button>
     <button @click="exit()">Exit</button>
   </div>
 </template>
