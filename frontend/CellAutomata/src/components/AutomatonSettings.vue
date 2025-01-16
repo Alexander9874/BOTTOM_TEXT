@@ -114,7 +114,7 @@ export default {
   data() {
     return {
       localprojectDescription: '',
-      localprojectName: '',
+      localprojectName: this.projectName,
       isDescriptionModealOpen: false,
       blue: {
         deathConditionsInput: '8',
@@ -136,9 +136,37 @@ export default {
       },
     };
   },
-  created() {
-    this.localprojectDescription = this.projectDescription;
-    this.localprojectName = this.projectName;
+  async created() {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      console.error("No token found");
+      this.$router.push("/");
+      return;
+    }
+    try{
+      const response = await axios.get(
+        `http://127.0.0.1:8000/GetProjectInfo?projectname=${encodeURIComponent(this.localprojectName)}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            Accept: "application/json",
+          },
+        }
+      );
+      if (response.status === 200 && response.data.status === "success") {
+        const projectDescription = response.data.data?.description;
+        if (projectDescription) {
+          this.localprojectDescription = projectDescription;
+        } else {
+          console.warn("Description not found in the response");
+        }
+      } else {
+        console.error("Failed to fetch project info:  ",response.data.message);
+      }
+    } catch(error) {
+      console.error("Error to fetch project info:  ",error.response?.data);
+      alert("Failed to fetch project info. Please try again");
+    }
   },
   methods: {
     applySettings() {
