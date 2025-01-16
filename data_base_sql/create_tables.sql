@@ -8,7 +8,7 @@ CREATE TABLE Users (
     id_user SERIAL PRIMARY KEY,
     username VARCHAR(31) NOT NULL UNIQUE,
     password_hash BIGINT NOT NULL,
-    about_me VARCHAR(255),
+    about_me VARCHAR(255) DEFAULT 'about me is empty',
 	create_date TIMESTAMP NOT NULL DEFAULT (CURRENT_TIMESTAMP)
 );
 
