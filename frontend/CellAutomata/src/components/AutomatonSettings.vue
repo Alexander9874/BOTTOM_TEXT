@@ -1,19 +1,19 @@
 <template>
   <div class="settings">
-    <label for="projectName">Project Name:</label>
-    <input id="projectName" type="text" v-model="projectName" @input="updateProjectName" maxlength="30"/>
+    <label for="projectName">Project Name:   </label>
+    <label for="projectName">{{ localprojectName }}</label>
 
     <label for="projectDescription">Project Description:</label>
-    <p>{{ projectDescription.slice(0,50) }}...</p>
-    <button @click="openDescriptionModal">Edit Description</button>
 
-    <DescriptionModal
-      :isOpen="isDescriptionModealOpen"
-      :description="projectDescription"
-      @close="closeDescriptionModeal"
-      @updateDescription="updateProjectDescription"
-    />
+   
+    <textarea
+      v-model="localprojectDescription"
+      placeholder="Edit project description..."
+      rows="5"
+      maxlength="250"
+    ></textarea>
 
+    <button @click="saveProject">Save new name and description and exit</button>
     <button v-if="numcolorMode === 'one'" @click="setnumColor('two')">Change_mode_on_two</button>
     <button v-if="numcolorMode === 'two'" @click="setnumColor('three')">Change_mode_on_three</button>
     <button v-if="numcolorMode === 'three'" @click="setnumColor('one')">Change_mode_on_one</button>
@@ -91,15 +91,15 @@
 
 import { extractIdentifiers } from 'vue/compiler-sfc';
 import DescriptionModal from './DescriptionModal.vue';
-
+import axios from 'axios';
 export default {
   components: {DescriptionModal},
   props: {
     numcolorMode: { type: String, Required: 'one'},
     Torusmode: { type: Boolean, Required: false},
     selectedColor: { type: String, default: 'blue' },
-    projectName: {type: String, required: true},
-    projectDescription: {type: String, default: 'Defauilt description' }
+    projectName: String,
+    projectDescription: String, 
   },
   emits: [
     "updateSettings",
@@ -113,8 +113,8 @@ export default {
   ],
   data() {
     return {
-      projectDescription: this.projectDescription,
-      projectName: this.projectName,
+      localprojectDescription: '',
+      localprojectName: '',
       isDescriptionModealOpen: false,
       blue: {
         deathConditionsInput: '8',
@@ -135,6 +135,10 @@ export default {
         birthConditionsOtherInput: '6',
       },
     };
+  },
+  created() {
+    this.localprojectDescription = this.projectDescription;
+    this.localprojectName = this.projectName;
   },
   methods: {
     applySettings() {
@@ -177,18 +181,43 @@ export default {
     setnumColor(numColors) {
       this.$emit('updatenumColors',numColors);
     },
-    updateProjectName() {
-      this.$emit("updateProjectName",this.projectName);
-    },
     openDescriptionModal() {
       this.isDescriptionModealOpen = true;
     },
     closeDescriptionModeal() {
       this.isDescriptionModealOpen = false;
     },
-    updateProjectDescription(newDescription) {
-      this.projectDescription = newDescription;
-      this.$emit("updateProjectDescription",this.projectDescription);
+    async saveProject() {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        console.error("No token found");
+        this.$router.push("/");
+        return;
+      }
+      const data = {
+        projectname: this.localprojectName,
+        new_projectname: this.localprojectName,
+        new_description: this.localprojectDescription,
+      };
+      console.log('Saving project with the following data:');
+      console.log(`Old Project Name: ${this.localprojectName}`);
+      console.log(`New Project Name: ${this.localprojectName}`);
+      console.log(`New Description: ${this.localprojectDescription}`);
+      try {
+        const response = await  axios.post('http://127.0.0.1:8000/UpdateProject',data,{
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        });
+        if (response.data.status === 'success') {
+        } else {
+          alert("Error saving project");
+        }
+      } catch(error) {
+        console.error('Error: ',error);
+        alert("An error occurred while saving the project");
+      }
     },
     exit() {
       this.$router.push('/home');

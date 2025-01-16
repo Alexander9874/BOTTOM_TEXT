@@ -26,7 +26,8 @@
               <li v-if="projects.length === 0" class="empty-list">No projects found</li>
               <li v-for="project in projects" :key="project.id" class="project-item">
                 <span>{{ project.name }}</span>
-                <button @click="openProject(project.id)">Open</button>
+                <button @click="openProject(project.name)">Open</button>
+                <button @click="deleteProject(project.name)" class="btn-delete">Delete</button>
               </li>
             </ul>
           </div>
@@ -187,8 +188,37 @@ import axios from 'axios';
           alert("Failed to create project. Please try again.");
         }
       },
-
-     
+      
+      async deleteProject(projectName) {
+        const token = localStorage.getItem("token");
+        if (!token) {
+          console.error("No token found");
+          this.$router.push("/");
+          return;
+        }
+        try{
+          const response = await axios.post(
+            "http://127.0.0.1:8000/DeleteProject", 
+            {
+              projectname: projectName,
+            },
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+              },
+            }
+          );
+          if (response.data.status === "success") {
+            this.fetchProjects();
+          } else {
+            alert("Failed to delete project");
+          }
+        } catch(error) {
+          console.error("Error deleting project: ",error);
+          alert("Error deleting project");
+        }
+      },
       openProject(projectId) {
         this.$router.push('/projects/${projectId}');
       },
@@ -360,7 +390,7 @@ import axios from 'axios';
   border-radius: 4px;
   cursor: pointer;
 }
-  
+
   .empty-list {
     color: #999;
     text-align: center;
