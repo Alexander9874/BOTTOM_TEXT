@@ -140,3 +140,8 @@ SELECT like_Switch('user5', 'project41');
 
 SELECT project_GetAllSortedByLikes('user1', TRUE);
 SELECT project_GetAllSortedByLikes('user3', FALSE);
+
+
+SELECT project_GetProjectInfo('user1', 'project11');
+SELECT project_GetProjectInfo('user2', 'project11');
+SELECT project_GetProjectInfo('user1', 'project24');

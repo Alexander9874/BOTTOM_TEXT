@@ -549,3 +549,36 @@ BEGIN
     END IF;
 END;
 $$ LANGUAGE plpgsql;
+
+----
+
+CREATE OR REPLACE FUNCTION project_GetProjectInfo(
+    input_username VARCHAR(31),
+    input_projectname VARCHAR(31)
+)
+RETURNS JSON AS $$
+DECLARE
+    result JSON;
+BEGIN
+    SELECT json_build_object(
+        'projectname', p.projectname,
+        'create_date', p.create_date,
+        'public', p.public,
+        'publish_date', p.publish_date,
+        'description', p.description
+    ) INTO result
+    FROM Projects p
+    INNER JOIN Users u ON p.id_user = u.id_user
+    WHERE p.projectname = input_projectname
+      AND p.deleted = FALSE
+      AND (
+          p.public = TRUE OR
+          u.username = input_username
+      );
+    IF result IS NULL THEN
+        RETURN json_build_object();
+    END IF;
+
+    RETURN result; -- Возвращаем данные о проекте
+END;
+$$ LANGUAGE plpgsql;
