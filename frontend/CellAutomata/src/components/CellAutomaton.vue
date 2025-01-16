@@ -43,7 +43,11 @@
           birthConditionsOther: new Set([5]),
         }
        })
-     }
+     },
+     parantcells: {
+      type: Array,
+      Required: false,
+     },
    },
    data() {
      return {
@@ -51,6 +55,25 @@
        interval: null,
        isDragging: false
      };
+   },
+   created() {
+    console.log('created called');
+    if (this.parantcells && this.parantcells.length > 0) {
+      console.log('not null');
+      this.cells = JSON.parse(JSON.stringify(this.parantcells));
+    } else {
+      console.log('null');
+      this.cells = this.createEmptyGrid();
+    }
+   },
+   watch: {
+    parantcells(newValue) {
+      if (newValue && newValue.length > 0) {
+        this.cells = JSON.parse(JSON.stringify(newValue));
+      } else {
+        this.cells = this.createEmptyGrid();
+      }
+    },
    },
    methods: {
     updateParentState() {

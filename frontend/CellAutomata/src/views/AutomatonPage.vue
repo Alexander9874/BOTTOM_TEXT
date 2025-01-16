@@ -12,6 +12,7 @@
         :Torusmode="Torusmode" @updateTorusMode="gridupdate"
         :projectName="projectName" 
         :projectDescription="projectDescription" 
+        :settings = "settings"
       />
     </div>
     <div class="grid-panel">
@@ -22,6 +23,7 @@
         :selectedColor="selectedColor"
         :Torusmode="Torusmode"
         :numcolorMode="numcolorMode"
+        :parantcells="cells"
         @update:cells="updateCells"
         ref="automaton"
       />
@@ -67,6 +69,9 @@ export default {
         }
       }    
     };
+  },
+  created() {
+    this.getParams();
   },
   methods: {
     updateSettings(newSettings) {
@@ -130,7 +135,6 @@ export default {
           violet_birth_conditions_other: Array.from(this.settings.violet.birthConditionsOther),
           grid:  grid.flat(),
         };
-        console.log("Payload: ",JSON.stringify(payload,null,2));
         const response = await axios.post("http://127.0.0.1:8000/UpdateParam",
             payload,
           {
@@ -148,6 +152,68 @@ export default {
       } catch(error) {
         console.error("Error sending request:  ",error);
         alert("Sending error");
+      }
+    },
+    convertGridToCells(grid) {
+      const rows = 80;
+      const cols = 80;
+      let cells = Array.from({length: rows}, () => Array(cols).fill('dead'));
+      grid.forEach((value,index) => {
+        const row = Math.floor(index/cols);
+        const col = index % cols;
+        cells[row][col] = value;
+      });
+      return cells;
+    },
+    async getParams() {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        alert("No token found");
+        this.$router.push("/");
+        return;
+      }
+      try{
+        const response = await axios.get("http://127.0.0.1:8000/GetParam",{
+          headers: {
+            "Authorization": `Bearer ${token}`,
+            "Accept": "application/json"
+          },
+          params: {projectname: this.projectName}
+        });
+        if (response.status === 200 && response.data.status === "success") {
+          const data = response.data.data;
+
+          const colorsNumMapping = {0: 'one', 1: 'two', 2: 'three'};
+          const cellTypeMapping = {0: 'dead', 1: 'blue', 2: 'green', 3: 'violet', 4: 'void'};
+
+          this.numcolorMode = colorsNumMapping[data.colors_num] || 'one';
+          this.Torusmode = data.torus_mode;
+
+          this.settings.blue.deathConditions = new Set(data.blue_death_conditions);
+          this.settings.blue.birthConditions = new Set(data.blue_birth_condittions);
+          this.settings.blue.deathConditionsOther = new Set(data.blue_death_conditions_other);
+          this.settings.blue.birthConditionsOther = new Set(data.blue_birth_condittions_other);
+
+          this.settings.green.deathConditions = new Set(data.green_death_conditions);
+          this.settings.green.birthConditions = new Set(data.green_birth_condittions);
+          this.settings.green.deathConditionsOther = new Set(data.green_death_conditions_other);
+          this.settings.green.birthConditionsOther = new Set(data.green_birth_condittions_other);
+
+
+          this.settings.violet.deathConditions = new Set(data.violet_death_conditions);
+          this.settings.violet.birthConditions = new Set(data.violet_birth_condittions);
+          this.settings.violet.deathConditionsOther = new Set(data.violet_death_conditions_other);
+          this.settings.violet.birthConditionsOther = new Set(data.violet_birth_condittions_other);
+
+          const grid = data.grid.map(cell => cellTypeMapping[cell] || 'dead');
+          this.cells = this.convertGridToCells(grid);
+          console.log("grid:  ",this.cells[0]);
+        } else {
+          alert("Error fetching parameters:  ",error);
+        }
+      } catch (error) {
+        console.error("Error fetching parameters:  ",error);
+        alert("Fetching error");
       }
     }
   }

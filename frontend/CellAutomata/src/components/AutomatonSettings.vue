@@ -101,6 +101,10 @@ export default {
     selectedColor: { type: String, default: 'blue' },
     projectName: String,
     projectDescription: String, 
+    settings: {
+      type: Object,
+      Required: true,
+    },
   },
   emits: [
     "updateSettings",
@@ -168,6 +172,36 @@ export default {
       console.error("Error to fetch project info:  ",error.response?.data);
       alert("Failed to fetch project info. Please try again");
     }
+    
+    if (this.settings.blue) {
+      this.blue = {
+        ...this.blue,
+        deathConditionsInput: Array.from(this.settings.blue.deathConditions).join(''),
+        birthConditionsInput: Array.from(this.settings.blue.birthConditions).join(''),
+        deathConditionsOtherInput: Array.from(this.settings.blue.deathConditionsOther).join(''),
+        birthConditionsOtherInput: Array.from(this.settings.blue.birthConditionsOther).join(''),
+      };
+    }
+    if (this.settings.green) {
+      this.green = {
+        ...this.green,
+        deathConditionsInput: Array.from(this.settings.green.deathConditions).join(''),
+        birthConditionsInput: Array.from(this.settings.green.birthConditions).join(''),
+        deathConditionsOtherInput: Array.from(this.settings.green.deathConditionsOther).join(''),
+        birthConditionsOtherInput: Array.from(this.settings.green.birthConditionsOther).join(''),
+      };
+    }
+    if (this.settings.violet) {
+      this.violet = {
+        ...this.violet,
+        deathConditionsInput: Array.from(this.settings.violet.deathConditions).join(''),
+        birthConditionsInput: Array.from(this.settings.violet.birthConditions).join(''),
+        deathConditionsOtherInput: Array.from(this.settings.violet.deathConditionsOther).join(''),
+        birthConditionsOtherInput: Array.from(this.settings.violet.birthConditionsOther).join(''),
+      };
+    }
+
+
   },
   methods: {
     applySettings() {
