@@ -412,3 +412,16 @@ async def api_SwitchLike(request: api_Projectname_req,
     else:
         raise HTTPException(status_code=400,
                             detail="Failed to update profile")
+    
+
+@app.get("/GetProjectInfo")
+async def api_GetProjectInfo(projectname: str,
+                             username: str = Depends(jwt_GetUsername),):
+    try:
+        result = db_GetProjectInfo(username, projectname)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Internal server error: {e}")
+    
+    if not result:
+        raise HTTPException(status_code=404, detail="No projects found")
+    return {"status": "success", "data": result}

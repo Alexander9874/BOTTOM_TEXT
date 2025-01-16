@@ -416,4 +416,26 @@ def db_CleanRevokedToken():
         print(f"Error : {e}")
         return
 
+def db_GetProjectInfo(username: str,
+                      projectname : str):
+    try:
+        conn = db_GetConnection()
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM project_GetProjectInfo(%s, %s)",
+                    (username, projectname))
+        result = cur.fetchall()
+
+        if result and isinstance(result[0],
+                                 tuple):
+            result = result[0][0]
+        else:
+            raise ValueError("Wrong JSON format")
+
+        cur.close()
+        conn.close()
+        return result
+    except Exception as e:
+        print(f"Error: {e}")
+        return []
+
 # <| END DATABASE
