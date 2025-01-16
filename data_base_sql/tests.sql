@@ -145,3 +145,6 @@ SELECT project_GetAllSortedByLikes('user3', FALSE);
 SELECT project_GetProjectInfo('user1', 'project11');
 SELECT project_GetProjectInfo('user2', 'project11');
 SELECT project_GetProjectInfo('user1', 'project24');
+
+
+SELECT param_GetGrid('NEW_project_name');
