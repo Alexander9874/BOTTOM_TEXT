@@ -25,7 +25,7 @@
             <ul>
               <li v-if="projects.length === 0" class="empty-list">No projects found</li>
               <li v-for="project in projects" :key="project.id" class="project-item">
-                <span>{{ project.name }}</span>
+                <span>{{ project.name.slice(0,15) }}</span>
                 <button @click="openProject(project.name)">Open</button>
                 <button @click="deleteProject(project.name)" class="btn-delete">Delete</button>
               </li>
@@ -392,6 +392,7 @@ import axios from 'axios';
 .project-item span {
   font-size: 1.5rem;
   font-weight: bold;
+  margin-right: auto;
 }
 
 .project-item button {
@@ -401,6 +402,7 @@ import axios from 'axios';
   border: none;
   border-radius: 4px;
   cursor: pointer;
+  margin-left: 10px;
 }
 
   .empty-list {
