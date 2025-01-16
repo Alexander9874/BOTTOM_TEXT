@@ -438,4 +438,14 @@ def db_GetProjectInfo(username: str,
         print(f"Error: {e}")
         return []
 
+def db_GetProjectGrid(projectname: str):
+    conn = db_GetConnection()
+    cur = conn.cursor()
+    # Pass the projectname as a tuple
+    cur.execute("SELECT * FROM param_GetGrid(%s)", (projectname,))
+    result = cur.fetchall()
+    cur.close()
+    conn.close()
+    return result
+
 # <| END DATABASE
