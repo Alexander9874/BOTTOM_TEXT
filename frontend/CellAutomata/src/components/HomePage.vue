@@ -219,8 +219,20 @@ import axios from 'axios';
           alert("Error deleting project");
         }
       },
-      openProject(projectId) {
-        this.$router.push('/projects/${projectId}');
+      openProject(projectName) {
+        const project = this.projects.find(p => p.name === projectName);
+
+        if (!project) {
+          alert("Project not found");
+          return;
+        }
+        this.$router.push({
+          name: 'AutoPage',
+          params: {
+            projectName: project.name,
+            projectDescription: project.description,
+          },
+        });
       },
       async logout() {
         const token = localStorage.getItem("token");

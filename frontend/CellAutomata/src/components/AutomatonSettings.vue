@@ -1,9 +1,9 @@
 <template>
   <div class="settings">
     <label for="projectName">Project Name:   </label>
-    <label for="projectName">{{ localprojectName }}</label>
+    <label for="projectName">{{ localprojectName }}      </label>
 
-    <label for="projectDescription">Project Description:</label>
+    <label for="projectDescription" style="display: block;">Project Description:</label>
 
    
     <textarea
