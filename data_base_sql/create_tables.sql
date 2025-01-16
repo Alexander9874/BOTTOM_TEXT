@@ -49,7 +49,7 @@ CREATE TABLE Params (
 	violet_birth_condittions INT[] DEFAULT '{4}',
 	violet_death_conditions_other INT[] DEFAULT '{6}',
 	violet_birth_condittions_other INT[] DEFAULT '{5}',
-    grid INT[] NOT NULL DEFAULT '{0, 0, 0}'
+    grid INT[] NOT NULL DEFAULT '{}'
 );
 
 CREATE TABLE RevokedTokens (
