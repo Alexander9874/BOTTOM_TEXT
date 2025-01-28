@@ -293,7 +293,7 @@ export default {
 
 <style scoped>
 .settings {
-  max-height: 1250px;
+  max-height: 900px;
   overflow-y: auto;
   overflow-x: hidden;
   padding: 40px;

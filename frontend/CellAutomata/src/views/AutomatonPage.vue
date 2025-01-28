@@ -112,7 +112,7 @@ export default {
       }
       try {
         const colorsNumMapping = {one: 0,two: 1,three: 2};
-        const cellTypeMapping = {dead: 0, blue: 1,green: 2,violet: 4,void: 4};
+        const cellTypeMapping = {dead: 0, blue: 1,green: 2,violet: 3,void: 4};
 
         const grid = this.cells.map(row => row.map(cell => cellTypeMapping[cell] || 0));
         const payload = {
