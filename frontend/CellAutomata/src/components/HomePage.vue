@@ -172,7 +172,7 @@ import axios from 'axios';
           );
 
           if (response.data.status === "success") {
-            alert("Project created successfully!");
+            //alert("Project created successfully!");
             this.$router.push({
               name: 'AutoPage',
               params: {

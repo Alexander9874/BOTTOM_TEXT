@@ -13,7 +13,7 @@
       maxlength="250"
     ></textarea>
 
-    <button @click="saveProject">Save new name and description and exit</button>
+    <button @click="saveProject">Save new description</button>
     <button v-if="numcolorMode === 'one'" @click="setnumColor('two')">Change_mode_on_two</button>
     <button v-if="numcolorMode === 'two'" @click="setnumColor('three')">Change_mode_on_three</button>
     <button v-if="numcolorMode === 'three'" @click="setnumColor('one')">Change_mode_on_one</button>
